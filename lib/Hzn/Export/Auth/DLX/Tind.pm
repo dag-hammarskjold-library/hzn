@@ -27,6 +27,10 @@ sub _xform {
 		Hzn::Export::Util::Xform::Common::DLX::Tind::_xrefs($record);
 	}
 	
+	_001_005: {
+		$record->delete_tag($_) for qw<001 005>;
+	}
+	
 	_035: {
 		Hzn::Export::Util::Xform::Common::DLX::Tind::_035($record,$self->marc_type)
 	}
