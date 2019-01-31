@@ -1,4 +1,28 @@
 
+# hzn-client
+
+This module provides classes for extracting and workging with data from the Horizon database, and exporting MARC records in various formats. The module also provides scripts that are command line programs powered by these classes.
+
+###### Installation:
+
+```bash
+git clone https://github.com/dag-hammarskjold-library/hzn-client
+````
+
+###### Requirements:
+
+* Perl version 5.10 or above
+* Local connection to Horizon database.
+* Local installation of ```isql``` command line tool in PATH
+* Environment variables HORIZON_USERNAME and HORIZON_PASSWORD set to valid credentials.
+* For exporting MARC:
+  * [DLX::MARC]()
+* For exporting to a Mongo instance:
+  * [MongoDB](https://metacpan.org/pod/MongoDB)
+  * Valid connection sting granting access to a MongoDB instance with collections named "bib" and "auth"
+ 
+
+
 ## Scripts
 
 > ### run-sql.pl
@@ -21,12 +45,6 @@ perl run-sql.pl -v -s 'select bib#, create_user from bib_control' | grep 'jbcat'
 | -u | *boolean* | Convert data to UTF-8
 | -o | *string* | Output file (warning| existing file will be overwrittern)
 | -v | *boolean* | Verbose. Display results on console
-
-###### Requirements:
-
-* Local connection to Horizon database.
-* Local installation of ```isql``` command line tool in PATH
-* Environment variables HORIZON_USERNAME and HORIZON_PASSWORD set to valid credentials.
 
 ___
 
@@ -61,20 +79,7 @@ perl export.pl -b -s "select top 100 bib# from bib_control" -f xml -o output.xml
 | -K | *boolean* | Export as MRK (.mrk)
 | -M | *string* | MongoDB connection string to export JMARC records in to
 
-###### Requirements:
-
-* All the requirements of `run-sql.pl`
-* [DLX::MARC]()
-* For exporting to a Mongo instance:
-  * Access to a MongoDB instance with collections named "bib" and "auth"
-  * [MongoDB](https://metacpan.org/pod/MongoDB)
-
-
 ___
-
-
-
-
 
 ## Classes
 
