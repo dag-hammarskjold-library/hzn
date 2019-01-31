@@ -19,7 +19,7 @@ git clone https://github.com/dag-hammarskjold-library/hzn-client
   * [DLX::MARC]()
 * For exporting to a Mongo instance:
   * [MongoDB](https://metacpan.org/pod/MongoDB)
-  * Valid connection sting granting access to a MongoDB instance with collections named "bib" and "auth"
+  * Valid connection sting granting read access to a MongoDB instance with collections named "bib" and "auth"
  
 
 
