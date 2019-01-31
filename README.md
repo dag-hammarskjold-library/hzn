@@ -14,7 +14,7 @@ perl run-sql.pl -v -s 'select bib#, create_user from bib_control' | grep 'jbcat'
 ###### Options:
 
 | opt | datatype | desc |
-|-----|----------|------|
+|-----|----------|:-----|
 | -h  | *boolean* | Display help
 | -s | *string* | SQL statement
 | -S | *string* | Path to SQL script
@@ -37,16 +37,16 @@ Export MARC records from the Horizon database to file, STDOUT, or MongoDB. There
 * DLX: Export records with metadata enhancements specified by DHL librarians documented [here]().
 * UNDL: Export records with transformations for UNDL documented [here]().
 
-##### Usage:
+###### Usage:
 
 ```bash
 perl export.pl -b -s "select top 100 bib# from bib_control" -f xml -o output.xml
 ```
 
-##### Options:
+###### Options:
 
 | opt | datatype | desc |
-|-----|----------|------|
+|-----|----------|:-----|
 | -h | *boolean* | Display help
 | -a | *boolean* | Export authority records
 | -b | *boolean* | Export bibliographic records
