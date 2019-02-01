@@ -1,7 +1,7 @@
 
 # hzn-client
 
-This module provides classes for extracting and workging with data from the Horizon database, and exporting MARC records in various formats. The module also provides scripts that are command line programs powered by these classes.
+This module provides classes for extracting and working with data from the Horizon database, and exporting MARC records in various formats. The module also provides scripts that are command line programs powered by these classes.
 
 ###### Installation:
 
@@ -43,7 +43,7 @@ perl run-sql.pl -v -s 'select bib#, create_user from bib_control' | grep 'jbcat'
 | -s | *string* | SQL statement
 | -S | *string* | Path to SQL script
 | -u | *boolean* | Convert data to UTF-8
-| -o | *string* | Output file (warning| existing file will be overwrittern)
+| -o | *string* | Output file (warning - existing file will be overwrittern)
 | -v | *boolean* | Verbose. Display results on console
 
 ___
