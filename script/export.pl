@@ -39,10 +39,9 @@ sub options {
 		['o:' => 'output file'],
 		['m:' => 'modified since'],
 		['u:' => 'modified_until'],
-		['M:' => 'mongo collection handle'],
+		['M:' => 'MongoDB connection string'],
 		['t:' => 'export type ("DLX", "Tind"); defaults to raw MARC'],
 		['3:' => 's3 db'], # deprecated
-		['m:' => 'MongoDB connection string'],
 	);
 	my @copy = @ARGV;
 	getopts (join('', map {$_->[0]} @opts), \my %opts);
