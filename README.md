@@ -12,14 +12,15 @@ git clone https://github.com/dag-hammarskjold-library/hzn-client
 ###### Requirements:
 
 * Perl version 5.10 or above
+  * [Strawberry Perl](http://strawberryperl.com/) is recommended, as it comes packaged with most of this module's dependencies 
 * Local connection to Horizon database.
 * Local installation of ```isql``` command line tool in PATH
 * Environment variables HORIZON_USERNAME and HORIZON_PASSWORD set to valid credentials.
 * For exporting MARC:
   * [DLX::MARC]()
-* For exporting to a Mongo instance:
+* For exporting to MongoDB / writing file links:
   * [MongoDB](https://metacpan.org/pod/MongoDB)
-  * Valid connection sting granting read access to a MongoDB instance with collections named "bib" and "auth"
+  * Valid connection sting granting read access to a MongoDB instance with collections named "bib", "auth", and "files"
  
 
 
@@ -77,7 +78,7 @@ perl export.pl -b -s "select top 100 bib# from bib_control" -f xml -o output.xml
 | -X | *boolean* | Export as XML
 | -C | *boolean* | Export as MARC21 (.mrc)
 | -K | *boolean* | Export as MRK (.mrk)
-| -M | *string* | MongoDB connection string to export JMARC records in to
+| -M | *string* | MongoDB connection string
 
 ___
 
