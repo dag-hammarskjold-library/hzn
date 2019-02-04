@@ -73,11 +73,12 @@ perl export.pl -b -s "select top 100 bib# from bib_control" -f xml -o output.xml
 | -m | *datetime* | ISO 8601 datetime (in UTC) from which to export records new/changed since
 | -u | *datetime* | ISO 8601 datetime (in UTC) from which to export records new/changed until
 | -r | *boolean* | Export in Raw mode
-| -d | *boolean* | Export in DLX mode
-| -u | *boolean* | Export in UNDL mode
+| -D | *boolean* | Export in DLX mode
+| -U | *boolean* | Export in UNDL mode
 | -X | *boolean* | Export as XML
 | -C | *boolean* | Export as MARC21 (.mrc)
 | -K | *boolean* | Export as MRK (.mrk)
+| -B | *boolean* | Export to Mongo (as BSON)
 | -M | *string* | MongoDB connection string
 
 ___
