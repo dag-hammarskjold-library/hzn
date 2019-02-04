@@ -67,24 +67,34 @@ has 'output_type' => (
 	is => 'rw',
 	isa => sub {
 		die unless OUTPUT_TYPES->{$_[0]};
-	},
+	}
+);
+
+has 'mongodb_connection_string', is => 'rw';
+
+has 'data_collection_handle' => (
+	is => => 'rw',
 	lazy => 1,
 	builder => sub {
 		my $self = shift;
-		
-		if ($self->mongodb_collection_handle) {
-			return 'mongo',
-		} else {
-			# default
-			return 'xml'
-		}
-	}	
-);
+		require MongoDB;
+		return MongoDB->connect($self->mongodb_connection_string)
+			#->get_database('DLX')
+			->get_database('undlFiles')
+			->get_collection(lc $self->marc_type);
+	}
+); 
 
-has 'mongodb_collection_handle' => (
+has 'file_collection_handle' => (
 	is => => 'rw',
-	isa => sub {
-		die unless ref $_[0] eq 'MongoDB::Collection'; 		
+	lazy => 1,
+	builder => sub {
+		my $self = shift;
+		require MongoDB;
+		return MongoDB->connect($self->mongodb_connection_string)
+			#->get_database('DLX')
+			->get_database('undlFiles')
+			->get_collection('files');
 	}
 ); 
 
@@ -179,7 +189,9 @@ sub run {
 		
 				$current++;
 			
-				if ($current == $total || $current % 5 == 0 && ($self->output_filename || $self->mongodb_collection_handle)) {
+				STATUS: {
+					$current == $total || $current % 5 == 0 || next;
+					$self->output_handle ne '*main::STDOUT' || $self->output_type eq 'mongo' || next;
 					$self->_update_status($current,$total);
 				}
 				
@@ -216,8 +228,10 @@ sub _write {
 	if (any {$_ eq $self->output_type} qw<xml mrk marc21>) {
 		my $serializer = $self->serializer;
 		print {$self->output_handle} $record->$serializer;
-	} elsif ($self->mongodb_collection_handle) {
-		$record->to_mongo($self->mongodb_collection_handle);
+	} 
+	
+	if ($self->output_type eq 'mongo') {
+		$record->to_mongo($self->data_collection_handle);
 	}
 }
 
