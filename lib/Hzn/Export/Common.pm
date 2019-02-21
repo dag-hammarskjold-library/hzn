@@ -27,6 +27,10 @@ sub _xform_common {
 		$record->leader($l);
 	}
 	
+	ENCODING: {
+		$record->character_encoding_scheme('a');
+	}
+	
 	_998: {
 		my $f = $audit->to_marc($record->id);
 		$f->set_sub('z',$self->export_id);
