@@ -181,6 +181,10 @@ sub run {
 		}
 
 		my $iterable = 'Hzn::SQL::MARC::'.$self->marc_type;
+		
+		# !!!
+		#my $iterable = 'Hzn::SQL::MARC::'.$self->marc_type.'::Alt';
+
 		$iterable->new->iterate (
 			encoding => 'utf8',
 			criteria => join(',',@batch),

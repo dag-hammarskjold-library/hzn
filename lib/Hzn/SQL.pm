@@ -111,6 +111,7 @@ sub run {
 	my ($self,%p) = @_;
 	my $callback = $p{callback};
 	
+
 	my $pid = open my $raw, '-|', $self->cmd or die "wtf?";
 	local $SIG{INT} = sub {kill 1, $pid; die "SIGINT"}; #  
 	

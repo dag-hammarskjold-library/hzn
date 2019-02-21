@@ -36,7 +36,7 @@ sub iterate {
 	$sql->run (
 		callback => sub {
 			my $row = shift;
-			my ($id,$tag,$inds,$auth_inds,$text,$xref,$place) = @$row[0..6];
+			my ($id,$tag,$inds,$auth_inds,$text,$auth_text,$xref,$place) = @$row[0..6];
 			
 			say "@$row" if ! $tag;
 					
@@ -56,7 +56,14 @@ sub iterate {
 				$index{$id} = 1;
 			}
 			
-			my $field = MARC::Field->new(tag => $tag,indicators => $inds,auth_indicators => $auth_inds,text => $text,xref => $xref);
+			my $field = MARC::Field->new(
+				tag => $tag,
+				indicators => $inds,
+				auth_indicators => $auth_inds,
+				text => $bib_text,
+				auth_text => $auth_text,
+				xref => $xref
+			);
 			$record->add_field($field);
 		}
 	);
