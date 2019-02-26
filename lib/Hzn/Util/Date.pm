@@ -61,16 +61,27 @@ sub hzn_8601 {
 sub _269_260 {
 	my $date = shift // confess 'Date not provided';
 	$date =~ s/[^\d]//g;
-	my $len = length($date);
-	confess 'invalid date' unless $date =~ /^\d+$/ && any {$_ eq $len} 4,6,8;
-	return Time::Piece->strftime('%d %b. %Y') 
+	
+	my $format = sub {	
+		my $len = length($date);
+		if ($len == 4) {
+			return '%Y';
+		} elsif ($len == 6) {
+			return '%b. %Y';
+		} elsif ($len == 8) {
+			return '%d %b. %Y';
+		} else {
+			confess 'invalid date';
+		}
+	};
+	
+	return Time::Piece->strptime($date,'%Y%m%d')->strftime($format->());
 }
 
 sub _260_269 {
 	my $date = shift // confess 'Date not provided';
 	$date =~ s/[^\w\s]//g;
-	my $dt = Time::Piece->strptime($date,'%d %b %Y');
-	return $dt->strftime('%Y-%m-%d');
+	return Time::Piece->strptime($date,'%d %b %Y')->strftime('%Y-%m-%d');
 }
 
 1;
