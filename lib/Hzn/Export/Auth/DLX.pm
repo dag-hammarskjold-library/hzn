@@ -19,7 +19,7 @@ sub _exclude {
 sub _xform {
 	my ($self,$record,$audit) = @_;
 	
-	$self->SUPER::_xform($record);
+	$self->SUPER::_xform($record,$audit);
 	
 	_150: {
 		if (my $field = $record->get_field('150')) {
