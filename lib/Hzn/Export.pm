@@ -180,10 +180,7 @@ sub run {
 			say {$self->output_handle} XML_HEADER."\n<collection>";
 		}
 
-		my $iterable = 'Hzn::SQL::MARC::'.$self->marc_type;
-		
-		# !!!
-		#my $iterable = 'Hzn::SQL::MARC::'.$self->marc_type.'::Alt';
+		my $iterable = 'Hzn::SQL::MARC::'.$self->marc_type.'::Alt';
 
 		$iterable->new->iterate (
 			encoding => 'utf8',
@@ -237,6 +234,8 @@ sub _write {
 	if ($self->output_type eq 'mongo') {
 		$record->to_mongo($self->data_collection_handle);
 	}
+	
+	print Dumper $record;
 }
 
 sub _update_status {

@@ -6,6 +6,8 @@ use Carp qw'confess';
 use Hzn::SQL;
 use MARC;
 
+use Data::Dumper;
+
 has 'encoding', is => 'rw', default => 'utf8';
 has 'processed' => (is => 'ro');
 
@@ -36,10 +38,8 @@ sub iterate {
 	$sql->run (
 		callback => sub {
 			my $row = shift;
-			my ($id,$tag,$inds,$auth_inds,$text,$auth_text,$xref,$place) = @$row[0..6];
-			
-			say "@$row" if ! $tag;
-					
+			my ($id,$tag,$inds,$auth_inds,$text,$auth_text,$xref,$place) = @$row[0..7];
+				
 			die if ! $id; # this should be impossible if subclass is implemented correctly
 		
 			confess "invalid tag ($tag) in record ".$record->id if $tag !~ /^\d{3}$/;
@@ -60,10 +60,12 @@ sub iterate {
 				tag => $tag,
 				indicators => $inds,
 				auth_indicators => $auth_inds,
-				text => $bib_text,
+				#text => $text,
+				text => $text.$auth_text,
 				auth_text => $auth_text,
 				xref => $xref
 			);
+			
 			$record->add_field($field);
 		}
 	);
