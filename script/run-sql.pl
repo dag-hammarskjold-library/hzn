@@ -13,7 +13,7 @@ use FindBin;
 # local
 use lib "$FindBin::Bin/../lib";
 use Hzn::SQL;
-use Hzn::Modified::Bib;
+use Hzn::Util::Modified::Bib;
 
 RUN: {
 	MAIN(options());
@@ -48,6 +48,7 @@ sub MAIN {
 	my $sql = Hzn::SQL->new;
 	$opts->{u} && $sql->encoding('utf8');
 	$opts->{o} && $sql->output_file($opts->{o});
+	$opts->{v} = 1 unless $opts->{o}; 
 	$opts->{v} && $sql->verbose(1);
 	
 	if (my $statement = $opts->{s}) {
