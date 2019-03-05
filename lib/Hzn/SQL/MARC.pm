@@ -56,14 +56,13 @@ sub iterate {
 				$index{$id} = 1;
 			}
 			
-			my $field = MARC::Field->new(
+			my $field = MARC::Field->new (
 				tag => $tag,
+				xref => $xref,
 				indicators => $inds,
 				auth_indicators => $auth_inds,
-				#text => $text,
-				text => $text.$auth_text,
 				auth_text => $auth_text,
-				xref => $xref
+				text => $text.$auth_text,
 			);
 			
 			$record->add_field($field);
