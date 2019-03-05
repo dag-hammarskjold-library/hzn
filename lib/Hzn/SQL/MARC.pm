@@ -41,8 +41,7 @@ sub iterate {
 			my ($id,$tag,$inds,$auth_inds,$text,$auth_text,$xref,$place) = @$row[0..7];
 				
 			die if ! $id; # this should be impossible if subclass is implemented correctly
-		
-			confess "invalid tag ($tag) in record ".$record->id if $tag !~ /^\d{3}$/;
+			confess "invalid tag ($tag) in record ".$id if $tag !~ /^\d{3}$/;
 			
 			if (! $index{$id}) {
 				
