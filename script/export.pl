@@ -46,6 +46,7 @@ sub options {
 		['C' => 'export as MARC21 (.mrc)'],
 		['K' => 'export as .mrk'],
 		['B' => 'write exported data to MongoDB (as BSON)'],
+		['A' => 'write exported data to MongoDB (as alternate BSON)'],
 		['M:' => 'MongoDB connection string'],
 	);
 	
@@ -57,9 +58,10 @@ sub options {
 	}
 	
 	VALIDATE: {
-		(none {$opts{$_}} qw<X C K B>) && die "X, C, K, or B required";
+		(none {$opts{$_}} qw<X C K B A>) && die "-X, -C, -K, or -B required";
 		$opts{B} || $opts{U} && ! $opts{M} && die "-M required with -B and -U";
-		
+		! $opts{D} && ! $opts{U} && die "-D or -U required"; 
+		$opts{D} && $opts{U} && die "-D and -U conflict";
 	}
 	
 	$opts{ARGV} = \@copy;
@@ -89,6 +91,7 @@ sub MAIN {
 	$opts->{C} && $export->output_type('mrc');
 	$opts->{K} && $export->output_type('mrk');
 	$opts->{B} && $export->output_type('mongo');
+	$opts->{A} && $export->output_type('mongo_alt');
 	
 	$opts->{o} && $export->output_filename($opts->{o});
 
