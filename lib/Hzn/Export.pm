@@ -22,7 +22,7 @@ use Hzn::SQL;
 use Hzn::SQL::MARC::Bib;
 use Hzn::SQL::MARC::Auth;
 
-use constant OUTPUT_TYPES => { map {$_ => 1} qw<xml json mrc mrk mongo> };
+use constant OUTPUT_TYPES => { map {$_ => 1} qw<xml json mrc mrk mongo mongo_alt> };
 
 use constant XML_HEADER => <<'#';
 <?xml version="1.0" encoding="UTF-8"?>
@@ -78,10 +78,11 @@ has 'data_collection_handle' => (
 	builder => sub {
 		my $self = shift;
 		require MongoDB;
+		my $col_name = lc $self->marc_type.'s';
 		return MongoDB->connect($self->mongodb_connection_string)
 			#->get_database('DLX')
 			->get_database('undlFiles')
-			->get_collection(lc $self->marc_type);
+			->get_collection($col_name);
 	}
 ); 
 
@@ -192,7 +193,7 @@ sub run {
 			
 				STATUS: {
 					$current == $total || $current % 5 == 0 || next;
-					$self->output_handle ne '*main::STDOUT' || $self->output_type eq 'mongo' || next;
+					$self->output_handle ne '*main::STDOUT' || $self->output_type =~ /^mongo/ || next;
 					$self->_update_status($current,$total);
 				}
 				
@@ -235,7 +236,9 @@ sub _write {
 		$record->to_mongo($self->data_collection_handle);
 	}
 	
-	print Dumper $record;
+	if ($self->output_type eq 'mongo_alt') {
+		$record->to_mongo_alt($self->data_collection_handle);
+	}
 }
 
 sub _update_status {
