@@ -22,7 +22,7 @@ use Hzn::SQL;
 use Hzn::SQL::MARC::Bib;
 use Hzn::SQL::MARC::Auth;
 
-use constant OUTPUT_TYPES => { map {$_ => 1} qw<xml json mrc mrk mongo mongo_alt> };
+use constant OUTPUT_TYPES => { map {$_ => 1} qw<xml json mrc marc21 mrk mongo mongo_alt> };
 
 use constant XML_HEADER => <<'#';
 <?xml version="1.0" encoding="UTF-8"?>

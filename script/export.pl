@@ -59,7 +59,7 @@ sub options {
 	
 	VALIDATE: {
 		(none {$opts{$_}} qw<X C K B A>) && die "-X, -C, -K, or -B required";
-		$opts{B} || $opts{U} && ! $opts{M} && die "-M required with -B and -U";
+		($opts{B} || $opts{U}) && ! $opts{M} && die "-M required with -B and -U";
 		! $opts{D} && ! $opts{U} && die "-D or -U required"; 
 		$opts{D} && $opts{U} && die "-D and -U conflict";
 	}
@@ -88,7 +88,7 @@ sub MAIN {
 	$opts->{M} && $export->mongodb_connection_string($opts->{M});
 	
 	$opts->{X} && $export->output_type('xml');
-	$opts->{C} && $export->output_type('mrc');
+	$opts->{C} && $export->output_type('marc21');
 	$opts->{K} && $export->output_type('mrk');
 	$opts->{B} && $export->output_type('mongo');
 	$opts->{A} && $export->output_type('mongo_alt');
