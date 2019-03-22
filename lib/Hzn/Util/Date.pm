@@ -61,7 +61,8 @@ sub hzn_8601 {
 sub _269_260 {
 	my $date = shift // confess 'Date not provided';
 	$date =~ s/[^\d]//g;
-	
+	my $mon = substr $date,4,2;
+		
 	my $format = sub {	
 		my $len = length($date);
 		if ($len == 4) {
@@ -69,7 +70,11 @@ sub _269_260 {
 		} elsif ($len == 6) {
 			return '%b. %Y';
 		} elsif ($len == 8) {
-			return '%d %b. %Y';
+			if (any {$mon eq $_} qw<05 06 07>) {
+				return '%e %B %Y';
+			} else {
+				return '%e %b. %Y';
+			}
 		} else {
 			confess 'invalid date';
 		}
