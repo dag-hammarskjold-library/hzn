@@ -6,7 +6,7 @@ package Hzn::Export::Util::AuditData;
 use Moo;
 use List::Util qw|any|;
 use Get::Hzn;
-use Utils qw|date_hzn_8601|;
+use Hzn::Util::Date;
 
 has 'type' => (
 	is => 'ro',
@@ -67,9 +67,11 @@ sub load {
 			my $row = shift;
 			my ($id,$cr_date,$cr_time,$cr_user,$ch_date,$ch_time,$ch_user) = @$row;
 			$self->{data}->{$id}->{create_user} = $cr_user;
-			$self->{data}->{$id}->{create_date} = date_hzn_8601($cr_date,$cr_time);
-			$self->{data}->{$id}->{change_user} = $ch_user;
-			$self->{data}->{$id}->{change_date} = date_hzn_8601($ch_date,$ch_time);
+			$self->{data}->{$id}->{create_date} = Hzn::Util::Date::hzn_8601($cr_date,$cr_time);
+			if ($ch_date) {
+				$self->{data}->{$id}->{change_user} = $ch_user;
+				$self->{data}->{$id}->{change_date} = Hzn::Util::Date::hzn_8601($ch_date,$ch_time);
+			}
 		}
 	);
 }
