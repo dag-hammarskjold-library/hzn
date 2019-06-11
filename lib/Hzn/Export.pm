@@ -132,6 +132,8 @@ has 'files_database', is => 'rw';
 
 has '_chars_to_delete', is => 'rw', default => 0;
 
+has 'errors', is => 'rw', default => sub {[]};
+
 ### stubs
 
 has 'marc_type' => (
@@ -199,6 +201,7 @@ sub run {
 				
 				return if $self->_exclude($record);
 				$self->_xform($record,$audit,$item);
+				
 				INC: {
 					# todo
 					next;
@@ -219,7 +222,18 @@ sub run {
 	}
 	
 	print "\n";
-	say "wrote $wrote records in ".(gettimeofday - $t).' seconds';
+	my $sec = gettimeofday - $t;
+	my $min = $sec / 60;
+	say "wrote $wrote records in $min minutes";
+	if (my @e = @{$self->errors}) {
+		if ($self->{tries} == 2) {
+			return;
+		}
+		say join "\n", ':( there were errors in the following records: ', @e, 'retrying...';
+		$self->ids_to_export(@e);
+		$self->run;
+		$self->{tries}++;
+	}
 }
 
 ###
@@ -233,7 +247,12 @@ sub _write {
 	} 
 	
 	if ($self->output_type eq 'mongo') {
-		$record->to_mongo($self->data_collection_handle);
+		#$record->to_mongo($self->data_collection_handle);
+		my $col = $self->data_collection_handle;
+		my $result = $col->replace_one({_id => 0 + $record->id}, $record->to_tie_ixhash, {upsert => 1});
+		if (! $result->acknowledged) {
+			push @{$self->errors}, $record->id;
+		}
 	}
 }
 
