@@ -236,10 +236,6 @@ sub _write {
 	if ($self->output_type eq 'mongo') {
 		$record->to_mongo($self->data_collection_handle);
 	}
-	
-	if ($self->output_type eq 'mongo_alt') {
-		$record->to_mongo_alt($self->data_collection_handle);
-	}
 }
 
 sub _update_status {

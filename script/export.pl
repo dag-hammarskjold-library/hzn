@@ -46,7 +46,6 @@ sub options {
 		['C' => 'export as MARC21 (.mrc)'],
 		['K' => 'export as .mrk'],
 		['B' => 'write exported data to MongoDB (as BSON)'],
-		['A' => 'write exported data to MongoDB (as alternate BSON)'],
 		['M:' => 'MongoDB connection string'],
 	);
 	
@@ -91,7 +90,6 @@ sub MAIN {
 	$opts->{C} && $export->output_type('marc21');
 	$opts->{K} && $export->output_type('mrk');
 	$opts->{B} && $export->output_type('mongo');
-	$opts->{A} && $export->output_type('mongo_alt');
 	
 	$opts->{o} && $export->output_filename($opts->{o});
 
