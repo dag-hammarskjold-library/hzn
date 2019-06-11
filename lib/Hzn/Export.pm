@@ -79,7 +79,6 @@ has 'data_collection_handle' => (
 		my $self = shift;
 		require MongoDB;
 		my $col_name = lc $self->marc_type.'s';
-		$col_name = lc($self->marc_type).'_JMARC' if $self->output_type eq 'mongo';
 		return MongoDB->connect($self->mongodb_connection_string)
 			#->get_database('DLX')
 			->get_database('undlFiles')
