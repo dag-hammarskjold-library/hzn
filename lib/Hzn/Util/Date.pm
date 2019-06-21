@@ -11,13 +11,14 @@ use List::Util qw<any>;
 
 # all datetimes are presumed to be UTC
 
-sub hzn_unix {
+sub hzn_unixish {
 	my ($hzn_date,$hzn_time,$gmt_adjust) = @_;
 	
-	confess 'Hzn date not provided' if ! $hzn_date;
+	$hzn_date ||= 0;
 	$hzn_time ||= 0;
 	
-	my $unixish = ($hzn_date * 86400) + ($hzn_time * 60);
+	my ($dd,$tt) = (($hzn_date * 86400), ($hzn_time * 60));
+	my $unixish = $dd + $tt;
 	$gmt_adjust ||= 0;
 	return $unixish + ($gmt_adjust * 3600);
 }
@@ -51,10 +52,12 @@ sub _8601_hzn {
 
 sub hzn_8601 {
 	my ($hzn_date,$hzn_time,$gmt_adjust) = @_;
-	confess 'Hzn date not provided' if ! $hzn_date;
+	
+	$hzn_date ||= 0;
 	$hzn_time ||= 0;
 	$gmt_adjust ||= 0;
-	my $unix = hzn_unix($hzn_date,$hzn_time,$gmt_adjust);
+	
+	my $unix = hzn_unixish($hzn_date,$hzn_time,$gmt_adjust);
 	return unix_8601($unix);
 }
 
