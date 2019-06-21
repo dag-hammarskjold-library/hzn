@@ -1,5 +1,5 @@
 
-# hzn-client
+# hzn
 
 This module provides classes for extracting and working with data from the Horizon database, and exporting MARC records in various formats. The module also provides scripts that are command line programs powered by these classes.
 
