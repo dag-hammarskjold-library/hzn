@@ -12,7 +12,7 @@ use List::Util qw<any>;
 use Time::HiRes qw<gettimeofday>;
 use Data::Dumper;
 
-use Utils qw<date_unix_8601>;
+use Hzn::Util::Date;
 
 use Hzn::Export::Util::AuditData;
 use Hzn::Export::Util::ItemData;
@@ -40,7 +40,7 @@ use constant XML_HEADER => <<'#';
 ]>
 #
 
-has 'export_id', is => 'ro', builder => sub {date_unix_8601(time)};
+has 'export_id', is => 'ro', builder => sub {Hzn::Util::Date::unix_8601(time)};
 
 has 'sql_criteria', is => 'rw';
 
