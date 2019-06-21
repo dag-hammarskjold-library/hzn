@@ -83,6 +83,7 @@ has 'encoding' => (
 
 has 'save_results', is => 'rw', default => 0;
 has 'header', is => 'ro', default => sub {[]};
+has 'show_header', is => 'rw', default => 0;
 has 'results_cache', is => 'ro', default => sub {[]};
 has 'verbose', is => 'rw', default => 0;
 has 'output_file', is => 'rw';
@@ -140,6 +141,7 @@ sub run {
 		
 		if ($. == 1) {
 			$self->{header} = \@row;
+			say join "\t", @row if $self->verbose && $self->show_header;
 			say {$self->output_fh} join "\t", @row if $self->output_fh;
 			next;
 		}
@@ -167,8 +169,9 @@ sub run {
 
 sub results {
 	my $self = shift;
-	confess 'Attribute "save_results" must be set to a true value to return cached results with method "results"' unless $self->{save_results};
-	return @{$self->{results_cache}};
+	confess 'Attribute "save_results" must be set to a true value to return cached results with method "results"'
+		unless $self->{save_results};
+	return $self->{results_cache};
 }
 
 sub _clean {
