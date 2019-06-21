@@ -47,6 +47,7 @@ sub options {
 		['K' => 'export as .mrk'],
 		['B' => 'write exported data to MongoDB (as BSON)'],
 		['M:' => 'MongoDB connection string'],
+		['l:' => '']
 	);
 	
 	my @copy = @ARGV;
@@ -78,6 +79,18 @@ sub MAIN {
 	};
 	
 	my $export = $class->new; #
+	
+	if (my $path = $opts->{l}) {
+		open my $fh, '<', $path;
+		my @ids;
+		while (<$fh>) {
+			my @row = split /\s/, $_;
+			push @ids, $row[0];
+		}
+		my $ids = join(',',@ids);
+		my $type = $opts->{a} ? 'auth' : 'bib';
+		$opts->{s} = "select $type\# from $type\_control where $type\# in ($ids)";
+	}
 	
 	$opts->{s} && $export->sql_criteria($opts->{s});
 	
