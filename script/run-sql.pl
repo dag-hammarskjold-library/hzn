@@ -28,6 +28,8 @@ sub options {
 		['t:' => ''],
 		['o:' => 'output file'],
 		['v' => 'verbose: print results stream to STDOUT'],
+		['c' => 'print column names in verbose mode'],
+		#['p' => 'pad data for readability'],
 		['u' => 'utf8']
 	);
 	my @copy = @ARGV;
@@ -56,7 +58,8 @@ sub MAIN {
 	} elsif (my $file = $opts->{S}) {
 		$sql->script($file);
 	}
-		
+	
+	$sql->show_header($opts->{c} && 1);	
 	$sql->run;
 }
 
