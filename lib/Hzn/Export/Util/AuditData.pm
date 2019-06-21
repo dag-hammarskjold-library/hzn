@@ -56,7 +56,8 @@ sub load {
 			create_user,
 			change_date,
 			change_time,
-			change_user
+			change_user,
+			timestamp
 		from 
 			$type\_control
 	#
@@ -65,13 +66,14 @@ sub load {
 	$get->execute (
 		callback => sub {
 			my $row = shift;
-			my ($id,$cr_date,$cr_time,$cr_user,$ch_date,$ch_time,$ch_user) = @$row;
+			my ($id,$cr_date,$cr_time,$cr_user,$ch_date,$ch_time,$ch_user,$timestamp) = @$row;
 			$self->{data}->{$id}->{create_user} = $cr_user;
 			$self->{data}->{$id}->{create_date} = Hzn::Util::Date::hzn_8601($cr_date,$cr_time);
 			if ($ch_date) {
 				$self->{data}->{$id}->{change_user} = $ch_user;
 				$self->{data}->{$id}->{change_date} = Hzn::Util::Date::hzn_8601($ch_date,$ch_time);
 			}
+			$self->{data}->{$id}->{timestamp} = $timestamp;
 		}
 	);
 }
@@ -84,6 +86,7 @@ sub to_marc {
 		b => $self->create_user($id),
 		c => $self->change_date($id),
 		d => $self->change_user($id),
+		x => $self->timestamp($id),
 	);
 	
 	my $f = MARC::Field->new(tag => '998');
@@ -110,6 +113,11 @@ sub change_user {
 sub change_date {
 	my ($self,$id) = @_;
 	return $self->{data}->{$id}->{change_date};
+}
+
+sub timestamp {
+	my ($self,$id) = @_;
+	return $self->{data}->{$id}->{timestamp};
 }
 
 1;
