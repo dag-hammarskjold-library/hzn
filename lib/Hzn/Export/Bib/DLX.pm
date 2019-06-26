@@ -29,7 +29,7 @@ has 'type_mapper', is => 'ro', default => sub {Hzn::Export::Util::Map::Bib::DLX:
 sub _exclude {
 	my ($self,$record) = @_;
 	
-	return 1 if any {/^Work in Progress/i} $record->get_values('245','a');
+	#return 1 if any {/^Work in Progress/i} $record->get_values('245','a');
 	return 1 unless 
 		$record->has_tag('191') 
 		|| $record->has_tag('791') 
