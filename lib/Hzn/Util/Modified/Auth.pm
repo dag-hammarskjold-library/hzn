@@ -7,7 +7,7 @@ has 'marc_type', is => 'ro', default => 'bib';
 
 sub since {
 	my ($self,$from,$to) = @_;
-	return $self->SUPER::since($from,$to);
+	return $self->SUPER::since(from => $from,to => $to);
 }
 
 1;
