@@ -170,7 +170,7 @@ sub run {
 	my ($status,$current,$wrote,$total) = ('',0,0,scalar @$ids);
 	my $t = gettimeofday;
 	
-	print "processing: ";
+	print "export ID: ".$self->export_id."; processing: ";
 	
 	while (@$ids) {
 		
@@ -224,7 +224,7 @@ sub run {
 	print "\n";
 	my $sec = gettimeofday - $t;
 	my $min = $sec / 60;
-	say "wrote $wrote records in $min minutes";
+	say "wrote $wrote records in ".($sec < 60 ? "$sec seconds" : "$min minutes");
 	if (my @e = @{$self->errors}) {
 		if ($self->{tries} == 2) {
 			return;
