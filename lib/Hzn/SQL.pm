@@ -41,7 +41,9 @@ has 'temp_script' => (
 		my $self = shift;
 		
 		confess q{Attribute "statement" or "script" must be set} unless $self->statement;		
-		my $path = 'temp_'.time.'_'.rand().'.sql';
+		my $tempdir = $ENV{HOME}.'/temp';
+		mkdir $tempdir;
+		my $path = "$tempdir/".time.'_'.rand().'.sql';
 		open my $temp,'>',$path;
 		say {$temp} ($self->statement // '')."\nGO";
 		
