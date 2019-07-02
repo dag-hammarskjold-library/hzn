@@ -83,6 +83,7 @@ sub scan_index {
 		my $col = $export->data_collection_handle;
 		for my $id (@to_delete) {
 			$col->find_one_and_delete({_id => 0 + $id});
+			delete $index->index->{$type}->{$id};
 		}
 	}
 }
