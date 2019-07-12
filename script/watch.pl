@@ -19,7 +19,6 @@ $|++;
 
 my $index = Index->new;
 
-
 print 'initializing @ '.localtime.'... ';
 init_index('bib');
 init_index('auth');
@@ -28,13 +27,12 @@ say "done";
 my $wait = $ARGV[1] // 60;
 
 while (1) {
-	say 'waiting '.$wait.' seconds...'; 
 	sleep $wait;
-	
-	say 'scanning bibs @ '.localtime.'...';
+
+	say 'scanning bibs @ '.localtime;
 	scan_index('bib');
 	
-	say 'scanning auths @ '.localtime.'...';	
+	say 'scanning auths @ '.localtime;	
 	scan_index('auth');
 }
 
@@ -78,7 +76,7 @@ sub scan_index {
 		
 		my @to_delete = grep {! $seen{$_}} keys %{$index->index->{$type}};
 		
-		say 'deleting '.scalar(@to_delete).'...';
+		say 'deleting:          '.scalar(@to_delete).'...';
 		
 		my $col = $export->data_collection_handle;
 		for my $id (@to_delete) {
@@ -86,4 +84,6 @@ sub scan_index {
 			delete $index->index->{$type}->{$id};
 		}
 	}
+	
+	say '-' x 50;
 }
