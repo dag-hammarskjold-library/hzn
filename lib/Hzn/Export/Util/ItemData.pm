@@ -6,7 +6,7 @@ package Hzn::Export::Util::ItemData;
 use Moo;
 use List::Util qw|any|;
 
-use Utils qw|date_hzn_8601|;
+use Hzn::Util::Date;
 
 use constant FIELDS => [qw|call barcode item collection copy location status itype create_date|];
 
@@ -64,7 +64,7 @@ sub load {
 		callback => sub {
 			my $row = shift;
 			my $bib = shift @$row;
-			$row->[-1] = date_hzn_8601($row->[-1]) if $row->[-1];
+			$row->[-1] = Hzn::Util::Date::hzn_8601($row->[-1]) if $row->[-1];
 			$self->{data}->{$bib}->{places}++; 
 			my $place = $self->{data}->{$bib}->{places};
 			my %data;
