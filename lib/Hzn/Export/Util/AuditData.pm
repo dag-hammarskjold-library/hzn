@@ -5,7 +5,6 @@ use warnings;
 package Hzn::Export::Util::AuditData;
 use Moo;
 use List::Util qw|any|;
-use Get::Hzn;
 use Hzn::Util::Date;
 
 has 'type' => (
@@ -62,8 +61,8 @@ sub load {
 			$type\_control
 	#
 	$sql .= "where $type\# in ($filter)" if $filter; 
-	my $get = Get::Hzn->new(sql =>$sql);
-	$get->execute (
+	my $get = Hzn::SQL->new(statement =>$sql);
+	$get->run (
 		callback => sub {
 			my $row = shift;
 			my ($id,$cr_date,$cr_time,$cr_user,$ch_date,$ch_time,$ch_user,$timestamp) = @$row;

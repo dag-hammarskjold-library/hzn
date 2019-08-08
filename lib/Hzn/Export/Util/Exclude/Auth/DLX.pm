@@ -5,7 +5,6 @@ use warnings;
 package Hzn::Export::Util::Exclude::Auth::DLX;
 use Moo;
 
-use Get::Hzn;
 use Hzn::SQL;
 
 has 'data' => (	

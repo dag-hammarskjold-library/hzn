@@ -498,7 +498,6 @@ sub _build_text {
 my $debug = <<'#';
 package main;
 use MARC;
-use Get::Hzn;
 
 Get::Hzn::Dump::Bib->new->iterate (
 	criteria => 'select bib# from bib_control where bib# between 100000 and 100100',

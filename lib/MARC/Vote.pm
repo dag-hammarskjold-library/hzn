@@ -180,7 +180,6 @@ sub uniq {
 
 # my $test = <<'#';
 package main;
-use Get::Hzn;
 use Data::Dumper;
 
 my $b = Voting::Batch->new;
