@@ -2,6 +2,10 @@ use v5.10;
 use strict;
 use warnings;
 
+# Arguments: 
+#	@ARGV[0] = <mongodb connection string>
+#	@ARGV[1] = <wait time between updates in seconds> [optional. default is 300]
+
 package Index;
 use Moo;
 
@@ -9,6 +13,7 @@ has 'index', is => 'rw', default => sub {{}};
 
 package main;
 use Time::Piece;
+use Time::Seconds;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use Hzn::SQL;
@@ -24,7 +29,8 @@ init_index('bib');
 init_index('auth');
 say "done";
 
-my $wait = $ARGV[1] // 60;
+my $wait = $ARGV[1] // 300;
+say 'next update time: '.localtime(time + $wait)->hms
 
 while (1) {
 	sleep $wait;
@@ -34,6 +40,8 @@ while (1) {
 	
 	say 'scanning auths @ '.localtime;	
 	scan_index('auth');
+	
+	say 'next update time: '.localtime(time + $wait)->hms
 }
 
 sub init_index {
