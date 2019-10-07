@@ -44,7 +44,7 @@ has 'temp_script' => (
 		my $tempdir = $ENV{HOMEPATH}.'/temp';
 		mkdir $tempdir;
 		my $path = "$tempdir/".time.'_'.rand().'.sql';
-		open my $temp,'>',$path;
+		open my $temp,'>',$path or die $!;
 		say {$temp} ($self->statement // '')."\nGO";
 		
 		return $path;

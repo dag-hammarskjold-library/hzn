@@ -207,10 +207,10 @@ sub scan_dlx {
 	
 	my $i = 0;
 	while (my $jmarc = $cursor->next) {
-	my $update_id = _get($jmarc,'998','x');
-	$dlx{$jmarc->{_id}} = $update_id // '';
+		my $update_id = _get($jmarc,'998','x');
+		$dlx{$jmarc->{_id}} = $update_id // '';
 			
-	_update_status($i,'?') if ($i % 100) == 0 || $i == 0;
+		_update_status($i,'?') if ($i % 100) == 0 || $i == 0;
 		$i++;
 	}	
 		
