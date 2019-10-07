@@ -30,18 +30,22 @@ init_index('auth');
 say "done";
 
 my $wait = $ARGV[1] // 300;
-say 'next update time: '.localtime(time + $wait)->hms
+say 'next update time: '.localtime(time + $wait)->hms;
+say '-' x 50;
 
 while (1) {
 	sleep $wait;
 
 	say 'scanning bibs @ '.localtime;
 	scan_index('bib');
-	
-	say 'scanning auths @ '.localtime;	
+	say '-' x 33;
+
+	say 'scanning auths @ '.localtime;
 	scan_index('auth');
+	say '-' x 33;
 	
-	say 'next update time: '.localtime(time + $wait)->hms
+	say 'next update time: '.localtime(time + $wait)->hms;
+	say '-' x 50;
 }
 
 sub init_index {
@@ -92,6 +96,4 @@ sub scan_index {
 			delete $index->index->{$type}->{$id};
 		}
 	}
-	
-	say '-' x 50;
 }
