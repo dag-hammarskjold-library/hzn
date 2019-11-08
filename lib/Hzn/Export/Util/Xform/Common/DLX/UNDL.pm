@@ -2,7 +2,7 @@ use v5.10;
 use strict;
 use warnings;
 
-package Hzn::Export::Util::Xform::Common::DLX::Tind;
+package Hzn::Export::Util::Xform::Common::DLX::UNDL;
 use MARC::Field;
 
 sub _xrefs {

@@ -72,7 +72,8 @@ sub _856 {
 					my $iso = substr $isos,0,2,'';
 					push @langs, LANG_ISO_STR->{$iso} if LANG_ISO_STR->{$iso};
 				}
-				my $FFT = MARC::Field->new(tag => 'FFT')->set_sub('a','http://undhl-dgacm.s3.amazonaws.com/'.uri_escape($key));
+				$key =~ s/ /%20/g;
+				my $FFT = MARC::Field->new(tag => 'FFT')->set_sub('a','http://undhl-dgacm.s3.amazonaws.com/'.$key);
 				$FFT->set_sub('n',clean_fn($newfn));
 				$FFT->set_sub('d',join(',',@langs));
 				for my $check ($record->get_fields('FFT')) {

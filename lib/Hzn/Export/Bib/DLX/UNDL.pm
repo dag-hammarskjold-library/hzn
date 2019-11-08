@@ -12,7 +12,7 @@ use Hzn::Export::Util::Xform::Bib::DLX::UNDL;
 
 extends 'Hzn::Export::Bib::DLX';
 
-has 's3_db_path', is => 'rw', required => 1;
+has 's3_db_path', is => 'rw';
 has 's3_db_handle' => (
 	is => 'ro', 
 	lazy => 1, 

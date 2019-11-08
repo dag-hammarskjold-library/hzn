@@ -36,10 +36,10 @@ sub options {
 		['b' => 'export bibs'],
 		['s:' => 'SQL statement'],
 		['S:' => 'SQL script'],
-		['f:' => 'output format ("xml", "mrc", "mrk")'],
 		['o:' => 'output file'],
 		['m:' => 'modified since'],
 		['u:' => 'modified_until'],
+		['l:' => 'path to file containing list of ids'],
 		['D' => 'export in DLX mode'],
 		['U' => 'export in UNDL mode'],
 		['X' => 'export as XML'],
@@ -47,7 +47,7 @@ sub options {
 		['K' => 'export as .mrk'],
 		['B' => 'write exported data to MongoDB (as BSON)'],
 		['M:' => 'MongoDB connection string'],
-		['l:' => '']
+		['3:' => 'S3 db path']
 	);
 	
 	my @copy = @ARGV;
@@ -58,10 +58,11 @@ sub options {
 	}
 	
 	VALIDATE: {
-		(none {$opts{$_}} qw<X C K B A>) && die "-X, -C, -K, or -B required";
-		($opts{B} || $opts{U}) && ! $opts{M} && die "-M required with -B and -U";
-		! $opts{D} && ! $opts{U} && die "-D or -U required"; 
-		$opts{D} && $opts{U} && die "-D and -U conflict";
+		(none {$opts{$_}} qw<X C K B A>) && die "-X, -C, -K, or -B required\n";
+		$opts{B} && ! $opts{M} && die "-M required with -B\n";
+		$opts{U} && ! $opts{3} && die "-3 required with -U\n";
+		! $opts{D} && ! $opts{U} && die "-D or -U required\n"; 
+		$opts{D} && $opts{U} && die "-D and -U conflict\n";
 	}
 	
 	$opts{ARGV} = \@copy;
@@ -98,6 +99,8 @@ sub MAIN {
 	$opts->{u} && $export->modified_until($opts->{u});
 	
 	$opts->{M} && $export->mongodb_connection_string($opts->{M});
+	
+	$opts->{U} && $export->s3_db_path($opts->{3});
 	
 	$opts->{X} && $export->output_type('xml');
 	$opts->{C} && $export->output_type('marc21');
