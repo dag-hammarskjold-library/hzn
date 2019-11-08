@@ -59,7 +59,7 @@ Export MARC records from the Horizon database to file, STDOUT, or MongoDB. There
 ###### Usage:
 
 ```bash
-perl export.pl -b -s "select top 100 bib# from bib_control" -f xml -o output.xml
+perl export.pl -bX -s "select top 100 bib# from bib_control" -o output.xml
 ```
 
 ###### Options:
@@ -70,9 +70,12 @@ perl export.pl -b -s "select top 100 bib# from bib_control" -f xml -o output.xml
 | -a | *boolean* | Export authority records
 | -b | *boolean* | Export bibliographic records
 | -s | *string* | SQL statement to run against the Horizon database. The results must contain auth/bib IDs in the first column to be used as IDs to export
+| -S | *path* | SQL script file to get statement from
+| -o | *path* | Output file
 | -m | *datetime* | ISO 8601 datetime (in UTC) from which to export records new/changed since
 | -u | *datetime* | ISO 8601 datetime (in UTC) from which to export records new/changed until
-| -r | *boolean* | Export in Raw mode
+| -l | *path* | File containing list of ids to export 
+| -R | *boolean* | Export in Raw mode
 | -D | *boolean* | Export in DLX mode
 | -U | *boolean* | Export in UNDL mode
 | -X | *boolean* | Export as XML
@@ -80,9 +83,7 @@ perl export.pl -b -s "select top 100 bib# from bib_control" -f xml -o output.xml
 | -K | *boolean* | Export as MRK (.mrk)
 | -B | *boolean* | Export to Mongo (as BSON)
 | -M | *string* | MongoDB connection string
+| -3 | *path* | SQLite db path
 
 ___
 
-## Classes
-
-... to do
