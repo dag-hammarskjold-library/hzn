@@ -40,6 +40,7 @@ sub options {
 		['m:' => 'modified since'],
 		['u:' => 'modified_until'],
 		['l:' => 'path to file containing list of ids'],
+		['R' => 'export in raw mode'],
 		['D' => 'export in DLX mode'],
 		['U' => 'export in UNDL mode'],
 		['X' => 'export as XML'],
@@ -58,11 +59,12 @@ sub options {
 	}
 	
 	VALIDATE: {
-		(none {$opts{$_}} qw<X C K B A>) && die "-X, -C, -K, or -B required\n";
+		(none {$opts{$_}} qw<X C K B>) && die "-X, -C, -K, or -B required\n";
+		(none {$opts{$_}} qw<R D U>) && die "-R, -D or -U required\n"; 
+		$opts{D} && $opts{U} && die "-D and -U conflict\n";
 		$opts{B} && ! $opts{M} && die "-M required with -B\n";
 		$opts{U} && ! $opts{3} && die "-3 required with -U\n";
-		! $opts{D} && ! $opts{U} && die "-D or -U required\n"; 
-		$opts{D} && $opts{U} && die "-D and -U conflict\n";
+		
 	}
 	
 	$opts{ARGV} = \@copy;
