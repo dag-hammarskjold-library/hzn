@@ -25,7 +25,7 @@ sub hzn_unixish {
 
 sub unix_hzn {
 	my $unix = shift;
-	$unix ||= gmtime;
+	$unix ||= gmtime->epoch;
 	my $days = int ($unix / 86400);
 	my $mins = int (($unix - ($days * 86400)) / 60);
 	return ($days,$mins);

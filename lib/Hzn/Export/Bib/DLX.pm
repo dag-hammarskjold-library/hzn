@@ -88,7 +88,9 @@ sub _xform {
 			$record->delete_field($f) if 
 				any {$f->get_sub('u') =~ /\Q$_\E/} qw|daccess-ods.un.org dds.ny.un.org|
 				or $f->get_sub('3') =~ /Purchasing information/;
+			next;
 		}
+	
 	}
 	
 	_949: {

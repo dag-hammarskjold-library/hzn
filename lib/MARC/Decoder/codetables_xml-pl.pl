@@ -3,8 +3,8 @@
 use strict;
 use warnings;
 use feature 'say';
-use lib 'c:\drive\modules';
-use lib '/Users/JB/Drive/modules';
+#use lib 'c:\drive\modules';
+#use lib '/Users/JB/Drive/modules';
 
 package Class;
 

@@ -5,7 +5,7 @@ package Hzn::SQL;
 use Moo;
 use Carp qw<carp croak cluck confess>;
 
-use lib 'c:\repos\modules';
+#use lib 'c:\repos\modules';
 use MARC::Decoder;
 
 has 'database' => (
