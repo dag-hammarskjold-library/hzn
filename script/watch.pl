@@ -84,9 +84,9 @@ sub scan_index {
 			sql_criteria => "select $type\# from $type\_control where $type\# in ($ids)"
 		);
 		
+		my $tries = 0;	
 		RUN_EXPORT: { 
 			if (@to_update) {
-				my $tries = 0;		
 				try {
 					use autodie;
 					$tries++;
