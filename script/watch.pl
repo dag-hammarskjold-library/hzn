@@ -14,6 +14,7 @@ has 'index', is => 'rw', default => sub {{}};
 package main;
 use Time::Piece;
 use Time::Seconds;
+use Try::Tiny;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use Hzn::SQL;
@@ -75,7 +76,7 @@ sub scan_index {
 	
 	say 'update candidates: '.scalar(@to_update).'...';
 	
-	UPDATE: {
+	UPDATE: if (@to_update) {
 		my $class = 'Hzn::Export::'.($type eq 'auth' ? 'Auth' : 'Bib').'::DLX';
 		my $ids = join(',',@to_update);
 		my $export = $class->new (
@@ -84,22 +85,20 @@ sub scan_index {
 			sql_criteria => "select $type\# from $type\_control where $type\# in ($ids)"
 		);
 		
-		my $tries = 0;	
-		RUN_EXPORT: { 
-			if (@to_update) {
-				try {
-					use autodie;
-					$tries++;
-					$export->run;
-				} catch {
-					warn join "\n", "export failed", $@;
-					if ($tries < 3) {
-						say "retrying...";
-						sleep 5;
-						goto RUN_EXPORT;
-					} else {
-						die "export failed $tries times :("
-					}
+		my $tries = 0;			
+		RUN_EXPORT: {
+			try {
+				use autodie;
+				$tries++;
+				$export->run;
+			} catch {
+				warn join "\n", "export failed", $@;
+				if ($tries < 3) {
+					say "retrying...";
+					sleep $tries * 5;
+					goto RUN_EXPORT;
+				} else {
+					die "export failed $tries times :("
 				}
 			}
 		}
