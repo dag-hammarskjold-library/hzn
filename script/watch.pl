@@ -84,7 +84,25 @@ sub scan_index {
 			sql_criteria => "select $type\# from $type\_control where $type\# in ($ids)"
 		);
 		
-		$export->run if @to_update;
+		RUN_EXPORT: { 
+			if (@to_update) {
+				my $tries = 0;		
+				try {
+					use autodie;
+					$tries++;
+					$export->run;
+				} catch {
+					warn join "\n", "export failed", $@;
+					if ($tries < 3) {
+						say "retrying...";
+						sleep 5;
+						goto RUN_EXPORT;
+					} else {
+						die "export failed $tries times :("
+					}
+				}
+			}
+		}
 		
 		my @to_delete = grep {! $seen{$_}} keys %{$index->index->{$type}};
 		
