@@ -94,7 +94,7 @@ has 'output_fh' => (
 	lazy => 1,
 	builder => sub {
 		my $self = shift;
-		open my $fh,'>:utf8',$self->output_file or die;
+		open my $fh,'+>:utf8',$self->output_file or die;
 		return $fh;
 	}
 );
@@ -144,7 +144,7 @@ sub run {
 		if ($. == 1) {
 			$self->{header} = \@row;
 			say join "\t", @row if $self->verbose && $self->show_header;
-			say {$self->output_fh} join "\t", @row if $self->output_fh;
+			say {$self->output_fh} join "\t", @row if $self->output_fh && $self->show_header;
 			next;
 		}
 		
@@ -194,7 +194,9 @@ sub _clean {
 	# remove leading spaces in columns
 	$str =~ s/\t +/\t/g;
 	# remove the string 'NULL' when it's the only string in the column
-	$str =~ s/(\t)?NULL(\t)/$1 ? "$1$2" : "$2"/ge;
+	while ($str =~ /(^|\t)NULL(\t|$)/) {
+		$str =~ s/(^|\t)NULL(\t|$)/$1$2/;
+	}
 	
 	return $str;
 }
