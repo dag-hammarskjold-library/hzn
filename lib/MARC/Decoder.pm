@@ -46,16 +46,6 @@ sub decode {
 	#my ($g0,$g1) = ($self->g1,$self->g0);
 	my ($bytes,$index,$c,@utf8) = (1,0,0);
 	
-	LITERALS: {
-		my @lits = ($str =~ /(<U\+....>)/g);
-		for my $lit (@lits) {
-			my $rep = $lit;
-			my $hex = $1 if $lit =~ /U\+(....)/;
-			$rep = pack "U*", hex $hex;
-			$str =~ s/\Q$lit\E/$rep/;
-		}
-	}
-	
 	CHARS: while ($index < length($str)) {
 		my $char = substr($str,$index,1);
 		my $dec = ord $char;
@@ -113,6 +103,7 @@ sub decode {
 			
 			ENCODE: {
 				$unicode = $hex if $dec < 128 and $g0 eq 42; # skip lookup if g0 is ascii
+				
 				EXCEPTIONS:{
 					#$unicode = '20' if $dec < 27; # useless random control chars
 					$unicode = 'FC' if $hex eq '81'; # weird encoding in horizon where \x{81} = ü
@@ -155,7 +146,19 @@ sub decode {
 		$index += $bytes;
 	}
 	
-	return normalize('C',compose(join '', grep {defined $_} @utf8));
+	my $return = normalize('C',compose(join '', grep {defined $_} @utf8));
+	
+	LITERALS: {
+    	my @lits = ($return =~ /(<U\+....>)/g);
+		for my $lit (@lits) {
+			my $rep = $lit;
+			my $hex = $1 if $lit =~ /U\+(....)/;
+			$rep = pack "U*", hex $hex;
+			$return =~ s/\Q$lit\E/$rep/;
+		}
+	}
+	
+	return $return;
 }
 
 1;
