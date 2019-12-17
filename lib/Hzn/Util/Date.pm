@@ -25,9 +25,10 @@ sub hzn_unixish {
 
 sub unix_hzn {
 	my $unix = shift;
-	$unix ||= gmtime->epoch;
-	my $days = int ($unix / 86400);
-	my $mins = int (($unix - ($days * 86400)) / 60);
+	$unix ||= time;
+	my $local = localtime($unix)->epoch;
+	my $days = int ($local / 86400);
+	my $mins = int (($local - ($days * 86400)) / 60);
 	return ($days,$mins);
 }
 
@@ -52,13 +53,15 @@ sub _8601_hzn {
 
 sub hzn_8601 {
 	my ($hzn_date,$hzn_time,$gmt_adjust) = @_;
+	#returns 8601 in UTC
 	
-	$hzn_date ||= 0;
+	return 0 if ! $hzn_date;
 	$hzn_time ||= 0;
 	$gmt_adjust ||= 0;
 	
 	my $unix = hzn_unixish($hzn_date,$hzn_time,$gmt_adjust);
-	return unix_8601($unix);
+	# since the Hzn "epoch time" is local, use localtime to actually get gmtime (ugh)
+	return localtime($unix)->strftime('%Y%m%d%H%M%S');
 }
 
 sub _269_260 {
