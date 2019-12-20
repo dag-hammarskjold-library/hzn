@@ -76,6 +76,7 @@ sub scan_index {
 	
 	say 'update candidates: '.scalar(@to_update).'...';
 	
+	my $tries = 0;
 	UPDATE: if (@to_update) {
 		my $class = 'Hzn::Export::'.($type eq 'auth' ? 'Auth' : 'Bib').'::DLX';
 		my $ids = join(',',@to_update);
@@ -85,23 +86,20 @@ sub scan_index {
 			sql_criteria => "select $type\# from $type\_control where $type\# in ($ids)"
 		);
 		
-		my $tries = 0;			
-		RUN_EXPORT: {
-			try {
-				use autodie;
-				$tries++;
-				$export->run;
-			} catch {
-				warn join "\n", "export failed", $@;
-				if ($tries < 3) {
-					say "retrying...";
-					sleep $tries * 5;
-					goto RUN_EXPORT;
-				} else {
-					die "export failed $tries times :("
-				}
+		try {
+			use autodie;
+			$tries++;
+			$export->run;
+		} catch {
+			warn join "\n", "export failed", $@;
+			if ($tries < 10) {
+				say "retrying...";
+				sleep $tries * 5;
+				goto UPDATE;
+			} else {
+				die "export failed $tries times :("
 			}
-		}
+		};
 		
 		my @to_delete = grep {! $seen{$_}} keys %{$index->index->{$type}};
 		
