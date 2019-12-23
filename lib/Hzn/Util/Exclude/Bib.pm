@@ -15,6 +15,9 @@ has 'sql' => (
 		and bib# not in (
 			select bib# from bib where tag = "099" and text like "%bDHU%"
 		)
+		or bib# in (
+			select bib# from bib where tag = "000" and substring(text,6,1) = "d"
+		)
 	}
 );
 

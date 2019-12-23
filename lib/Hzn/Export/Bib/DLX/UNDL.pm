@@ -22,6 +22,14 @@ has 's3_db_handle' => (
 	}
 );
 
+sub _exclude {
+	my ($self,$record) = @_;
+	
+	return 1 if $self->SUPER::_exclude($record);
+	
+	return 1 if any {/^Work in Progress/i} $record->get_values('245','a');
+}
+
 sub _xform {
 	my ($self,$record,$audit,$item) = @_;
 	
