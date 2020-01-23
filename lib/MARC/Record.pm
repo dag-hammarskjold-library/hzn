@@ -1,6 +1,6 @@
+use v5.10;
 use strict;
 use warnings;
-use feature 'say';
 
 package MARC::Record;
 use Alpha;
@@ -72,24 +72,20 @@ has 'import_hash' => (
 	is => 'method',
 	code => sub {
 		my ($self,%hash) = @_;
-		while (my ($tag,$place) = each %hash) {
-			my $field = MARC::Field->new(tag => $tag);
-			while (my ($sub, $vals) = each %$place) {
-				if (substr($sub,0,3) eq 'ind') {
-					$field->$sub($vals);
-				} else {
-					if (! ref $vals) {
-						$field->set_sub($sub,$vals);
-					} elsif (ref $vals eq 'ARRAY') {
-						$field->set_sub($sub,$_) for @$vals;
-					} else {
-						confess "invalid value";
-					}
+		
+		for my $tag (sort keys %hash) {
+			for my $place (keys $hash{$tag}->%* ) {
+				my $field = MARC::Field->new(tag => $tag);
+				
+				for my $sub (sort keys $hash{$tag}->{$place}->%* ) {
+					my $val = $hash{$tag}->{$place}->{$sub};
+					
+					$field->set_sub($sub,$val)
 				}
+		
+				$self->add_field($field);
 			}
-			next if ! $field->text and ! $field->indicators;
-			$self->add_field($field);
-		} 
+		}
 	}
 );
 has 'defaults' => (

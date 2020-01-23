@@ -300,7 +300,6 @@ sub iterate_excel {
 				my $cell = $sheet->get_cell($r,$c);
 				my $val = $cell->value if $cell;
 				next if ! $val;
-				#$val ||= '';
 				if ($r == 0) {
 					my ($place,$tag,$sub) = $val =~ /^(\d+\.)?(\d{3})\$(.)/g;
 					warn 'invalid header in column '.$c and next if ! $tag or ! $sub;
