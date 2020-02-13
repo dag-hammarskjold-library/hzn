@@ -60,8 +60,8 @@ sub hzn_8601 {
 	$gmt_adjust ||= 0;
 	
 	my $unix = hzn_unixish($hzn_date,$hzn_time,$gmt_adjust);
-	# since the Hzn "epoch time" is local, use localtime to actually get gmtime (ugh)
-	return localtime($unix)->strftime('%Y%m%d%H%M%S');
+	
+	return gmtime($unix)->strftime('%Y%m%d%H%M%S');
 }
 
 sub _269_260 {
