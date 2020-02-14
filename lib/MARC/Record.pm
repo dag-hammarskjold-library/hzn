@@ -9,6 +9,7 @@ use Data::Dumper;
 use Scalar::Util 'refaddr';
 use Tie::IxHash;
 use List::Util qw<any>;
+use DateTime;
 
 has 'directory', is => 'rw';
 has 'field_terminator', is => 'rw', default => "\x{1E}";
@@ -416,7 +417,7 @@ sub to_tie_ixhash {
 	
 	my $tie = Tie::IxHash->new;
 	$tie->Push(_id => 0 + $self->id);
-	
+	$tie->Push(updated => DateTime->now);
 	
 	for my $field (grep {$_->is_controlfield} $self->fields) {
 		my $tag = $field->tag;

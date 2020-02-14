@@ -78,6 +78,7 @@ sub _xform {
 	}
 	
 	_650: {
+		last;
 		for ($record->fields('650')) {
 			my $ai = $_->auth_indicators;
 			$ai && (substr($ai,0,1) eq '9') && $_->change_tag('651');

@@ -23,6 +23,7 @@ sub _xform {
 	$self->SUPER::_xform($record,$audit);
 	
 	_150: {
+		last;
 		if (my $field = $record->get_field('150')) {
 			if ($field->ind1 eq '9') {
 				$record->change_tag('150','151');
