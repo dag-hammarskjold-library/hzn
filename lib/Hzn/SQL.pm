@@ -63,7 +63,7 @@ has 'cmd' => (
 		my $usr = $ENV{HORIZON_USERNAME} // die 'environemnt variable HORIZON_USERNAME must be set';
 		my $pwd = $ENV{HORIZON_PASSWORD} // die 'environment variable HORIZON_PASSWORD must be set';
 		
-		return qq{isql -S horizon -U $usr -P $pwd -s "\x{9}" -h 0 -w 500000 -D $db -i $path -J cp850};	
+		return qq{isql -S Horizon -U $usr -P $pwd -s "\x{9}" -h 0 -w 500000 -D $db -i $path -J cp850};	
 	}
 );
 
