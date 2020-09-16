@@ -7,7 +7,7 @@ use Getopt::Std;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 use FindBin;
-use List::Util qw<none>;
+use List::Util qw<none first>;
 
 # dist
 use MongoDB;
@@ -181,7 +181,7 @@ sub _get {
 	my ($jmarc,$tag,$code) = @_;
 	
 	for my $f (@{$jmarc->{$tag}}) {
-		for my $s (grep {$_->{code} eq $code} @{$f->{subfields}}) {
+		for my $s (first {$_->{code} eq $code} @{$f->{subfields}}) {
 			return $s->{value};
 		}
 	}
@@ -203,7 +203,7 @@ sub scan_dlx {
 		->get_database('undlFiles')
 		->get_collection($type.'s');
 	
-	my $cursor = $col->find($query,{'998' => 1});
+	my $cursor = $col->find($query)->fields({'998.subfields' => 1});
 	
 	my $i = 0;
 	while (my $jmarc = $cursor->next) {
