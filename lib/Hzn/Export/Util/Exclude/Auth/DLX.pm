@@ -14,6 +14,7 @@ has 'data' => (
 		my $self = shift;
 		
 		my %data;
+		
 		for my $sql (map {"select auth# from $_ where see_flag = 1"} qw<author subject>) {
 			my $get = Hzn::SQL->new(statement => $sql);
 			$get->run (
@@ -30,7 +31,7 @@ has 'data' => (
 );
 
 sub exclude {
-	my ($self,$id) = @_;
+	my ($self, $id) = @_;
 	return $self->data->{$id} ? 1 : 0;
 }
 

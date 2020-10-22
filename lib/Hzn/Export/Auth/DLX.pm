@@ -11,14 +11,15 @@ use Hzn::Export::Util::Exclude::Auth::DLX;
 has 'excluder', is => 'ro', default => sub {Hzn::Export::Util::Exclude::Auth::DLX->new};
 
 sub _exclude {
-	my ($self,$record) = @_;
-	
+	my ($self, $record) = @_;
+
+	return 1 if $record->get_field('150');
 	return 1 if $record->record_status eq 'd';
 	return 1 if $self->excluder->exclude($record->id);
 }
 
 sub _xform {
-	my ($self,$record,$audit) = @_;
+	my ($self, $record, $audit) = @_;
 	
 	$self->SUPER::_xform($record,$audit);
 	

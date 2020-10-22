@@ -53,7 +53,7 @@ sub options {
 	
 	my @copy = @ARGV;
 	getopts (join('', map {$_->[0]} @opts), \my %opts);
-	if (! %opts || $opts{h}) {
+	if (! scalar %opts || $opts{h}) {
 		say join ' - ', @$_ for @opts;
 		exit;
 	}
