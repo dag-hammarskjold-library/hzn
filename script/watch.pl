@@ -20,11 +20,21 @@ use lib "$FindBin::Bin/../lib";
 use Hzn::SQL;
 use Hzn::Export::Bib::DLX;
 use Hzn::Export::Auth::DLX;
+use MongoDB;
+
+CHECK_CONNECTION: {
+	my $check = MongoDB->connect($ARGV[0]);
+	$check->list_databases;
+}
 
 $|++;
 
+mkdir 'logs';
+open my $LOG, '>', 'logs/log_'.time.'.txt' or die "$!";
+
 my $index = Index->new;
 
+say {$LOG} localtime.' starting';
 print 'initializing @ '.localtime.'... ';
 init_index('bib');
 init_index('auth');
@@ -38,12 +48,14 @@ while (1) {
 	sleep $wait;
 	
 	say 'scanning auths @ '.localtime;
-	scan_index('auth');
+	my $count = scan_index('auth');
 	say '-' x 33;
+	say {$LOG} localtime.' scanned auths; wrote '.$count;
 	
 	say 'scanning bibs @ '.localtime;
 	scan_index('bib');
 	say '-' x 33;
+	say {$LOG} localtime.' scanned bibs; wrote '.$count;
 	
 	say 'next update time: '.localtime(time + $wait)->hms;
 	say '-' x 50;
@@ -76,7 +88,8 @@ sub scan_index {
 	
 	say 'update candidates: '.scalar(@to_update).'...';
 	
-	my $tries = 0;
+	my ($tries, $count) = 0 x 2;
+	
 	UPDATE: if (@to_update) {
 		my $class = 'Hzn::Export::'.($type eq 'auth' ? 'Auth' : 'Bib').'::DLX';
 		my $ids = join(',',@to_update);
@@ -89,7 +102,7 @@ sub scan_index {
 		try {
 			use autodie;
 			$tries++;
-			$export->run;
+			$count = $export->run;
 		} catch {
 			warn join "\n", "export failed", $@;
 			if ($tries < 10) {
@@ -111,4 +124,6 @@ sub scan_index {
 			delete $index->index->{$type}->{$id};
 		}
 	}
+	
+	return $count // 0;
 }

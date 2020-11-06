@@ -234,6 +234,8 @@ sub run {
 		$self->run;
 		$self->{tries}++;
 	}
+	
+	return $wrote + 0;
 }
 
 ###

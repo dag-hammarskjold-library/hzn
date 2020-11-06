@@ -56,6 +56,11 @@ sub options {
 sub MAIN {
 	my $opts = shift;
 	
+	CHECK_CONNECTION: {
+		my $check = MongoDB->connect($opts->{M});
+		$check->list_databases;
+	}
+	
 	my $t = time;
 	
 	my $type;

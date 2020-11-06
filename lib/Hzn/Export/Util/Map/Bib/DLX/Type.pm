@@ -150,7 +150,7 @@ sub map {
 		$r->add_field($make->(a => 'docpub', b => 'drd'));
 	}
 	Q_21: {
-		last unless $r->check('191','a','*/PRESS/*')
+		last unless $r->check('191','b','*/PRESS/*')
 			|| $r->check('089','b','B20');
 		$r->add_field($make->(a => 'docpub', b => 'pr'));
 	}	
