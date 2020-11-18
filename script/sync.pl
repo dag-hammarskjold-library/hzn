@@ -60,7 +60,7 @@ sub MAIN {
 		my $check = MongoDB->connect($opts->{M});
 		$check->list_databases;
 	}
-	
+
 	my $t = time;
 	
 	my $type;
@@ -187,6 +187,7 @@ sub _get {
 	
 	for my $f (@{$jmarc->{$tag}}) {
 		for my $s (first {$_->{code} eq $code} @{$f->{subfields}}) {
+			next if ! $s;
 			return $s->{value};
 		}
 	}
