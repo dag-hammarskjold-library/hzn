@@ -107,7 +107,7 @@ sub map {
 	Q_12: {
 		last unless $r->check('089','b','B16')
 			&& $r->check('245','*','*Report*')
-			&& $r->check('989','b','Reports');
+			&& ! $r->check('989','b','Reports');
 		$r->add_field($make->(a => 'docpub', b => 'rpt'));
 	}
 	Q_13: {
