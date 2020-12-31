@@ -23,6 +23,9 @@ use Hzn::Export::Auth::DLX;
 
 package main;
 
+mkdir 'logs';
+open my $LOG, '>', 'logs/sync_log_'.time.'.txt' or die "$!";
+
 RUN: {
 	MAIN(options());
 }
@@ -100,15 +103,17 @@ sub MAIN {
 			mongodb_connection_string => $opts->{M},
 			sql_criteria => "select $type\# from $type\_control where $type\# in ($ids)"
 		);
-		$export->run;
-		
+		my $wrote = $export->run;
+	
 		say 'deleting '.scalar(@to_delete).'...';
 		
 		my $col = $export->data_collection_handle;
 		for my $id (@to_delete) {
 			$col->find_one_and_delete({_id => 0 + $id});
 		}
-	}
+		
+		say {$LOG} time." - $type: wrote $wrote; deleted ".scalar @to_delete;
+	} 
 	
 	say "time elapsed: ".((time - $t) / 60)." minutes";
 	say "done";
