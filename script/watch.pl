@@ -31,6 +31,7 @@ $|++;
 
 mkdir 'logs';
 open my $LOG, '>', 'logs/log_'.time.'.txt' or die "$!";
+*STDERR = $LOG;
 
 my $index = Index->new;
 

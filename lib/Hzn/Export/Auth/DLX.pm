@@ -35,7 +35,7 @@ sub _xform {
 	}
 	
 	_4XX: {
-		for my $tag (qw/400 410 411 430 450 490/) {
+		for my $tag (qw/400 410 411 430 450 490 491/) {
 			$_->delete_subfield('0') for $record->get_fields($tag);
 		}
 	}
