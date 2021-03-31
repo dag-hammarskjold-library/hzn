@@ -468,6 +468,7 @@ sub _parse_text {
 	for (split /[\Q$d$t\E]/, $self->text) {
 		my $sub = substr $_,0,1,'';
 		next if ! $_;
+		$_ =~ s/\s+$//;
 		$self->set_subfield($sub,$_);
 	}
 }
