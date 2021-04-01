@@ -45,9 +45,13 @@ sub _xform {
 	$self->SUPER::_xform($record,$audit,$item);
 	
 	DATES: {
-		for my $f ($record->get_fields(qw<269 992>)) {
-			my $new = join '-', grep {$_} ($f->get_sub('a') =~ /(\d{4})(\d{2})?(\d{2})?/);
-			$f->set_sub('a',$new, replace => 1);
+		for my $pair (['269', 'a'], ['992', 'a'], ['992', 'b']) {
+			my ($tag, $sub) = @$pair;
+			
+			if (my $field = $record->get_field($tag)) {
+				my $new = join '-', grep {$_} ($field->get_sub($sub) =~ /(\d{4})(\d{2})?(\d{2})?/);
+				$field->set_sub($sub, $new, replace => 1) if $new;
+			}
 		}
 	}
 	
