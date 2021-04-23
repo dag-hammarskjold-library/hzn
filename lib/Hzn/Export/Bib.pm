@@ -24,6 +24,7 @@ sub _xform {
 	$self->_xform_common($record,$audit,$item);
 	
 	_949: {
+		$recod->delete_tag('949')
 		$record->add_field($_) for $item->to_marc($record->id);
 	}
 }
