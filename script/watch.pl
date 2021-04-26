@@ -119,11 +119,18 @@ sub scan_index {
 		
 		say 'deleting:          '.scalar(@to_delete).'...';
 		
-		my $col = $export->data_collection_handle;
+		my $data_col = $export->data_collection_handle;
+		my $hist_col = $export->data_history_collection_handle;
+		
 		for my $id (@to_delete) {
-			$col->find_one_and_delete({_id => 0 + $id});
+		    my $record_hist = $hist_col->find_one({_id => 0 + $id}) || {};
+			$record_hist->{deleted} = {'user' => 'HZN', 'time' => DateTime->now};
+			$hist_col->replace_one({_id => $id}, $record_hist, {upsert => 1});
+			
+			$data_col->find_one_and_delete({_id => 0 + $id});
 			delete $index->index->{$type}->{$id};
 		}
+		
 	}
 	
 	return $count // 0;

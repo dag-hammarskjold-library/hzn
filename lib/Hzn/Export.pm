@@ -86,6 +86,20 @@ has 'data_collection_handle' => (
 	}
 ); 
 
+has 'data_history_collection_handle' => (
+	is => => 'rw',
+	lazy => 1,
+	builder => sub {
+		my $self = shift;
+		require MongoDB;
+		my $col_name = lc $self->marc_type.'_history';
+		return MongoDB->connect($self->mongodb_connection_string)
+			#->get_database('DLX')
+			->get_database('undlFiles')
+			->get_collection($col_name);
+	}
+); 
+
 has 'file_collection_handle' => (
 	is => => 'rw',
 	lazy => 1,
