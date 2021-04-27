@@ -94,23 +94,22 @@ sub MAIN {
 		}
 	}
 	
+	my $class = 'Hzn::Export::'.($type eq 'auth' ? 'Auth' : 'Bib').'::DLX';
+	my $export = $class->new (
+		output_type => 'mongo',
+		mongodb_connection_string => $opts->{M},
+	);
+	my $wrote;
+	
 	UPDATE: {
 		say 'update candidates: '.scalar(@to_update).'...';
-		
-		# history_collection = DB.handle[self.record_type + '_history']
-        # record_history = history_collection.find_one({'_id': self.id}) or SON()
-        # record_history['deleted'] = SON({'user': user, 'time': datetime.utcnow()})
-        # history_collection.replace_one({'_id': self.id}, record_history, upsert=True)
-		
-		my $class = 'Hzn::Export::'.($type eq 'auth' ? 'Auth' : 'Bib').'::DLX';
+
 		my $ids = join(',',@to_update) || 0;
-		my $export = $class->new (
-			output_type => 'mongo',
-			mongodb_connection_string => $opts->{M},
-			sql_criteria => "select $type\# from $type\_control where $type\# in ($ids)"
-		);
-		my $wrote = $export->run;
+		$export->sql_criteria("select $type\# from $type\_control where $type\# in ($ids)");
+		$wrote = $export->run;
+	}
 	
+	DELETE: {
 		say 'deleting '.scalar(@to_delete).'...';
 		
 		my $data_col = $export->data_collection_handle;
@@ -120,12 +119,11 @@ sub MAIN {
 		    my $record_hist = $hist_col->find_one({_id => 0 + $id}) || {};
 			$record_hist->{deleted} = {'user' => 'HZN', 'time' => DateTime->now};
 			$hist_col->replace_one({_id => $id}, $record_hist, {upsert => 1});
-			
 			$data_col->find_one_and_delete({_id => 0 + $id});
-		}
-		
-		say {$LOG} time." - $type: wrote $wrote; deleted ".scalar @to_delete;
+		}	
 	} 
+	
+	say {$LOG} time." - $type: wrote $wrote; deleted ".scalar @to_delete;
 	
 	say "time elapsed: ".((time - $t) / 60)." minutes";
 	say "done";
@@ -171,7 +169,7 @@ sub scan_horizon {
 sub excludes {
 	my ($type,$gte,$lte) = @_;
 	
-	print 'screening ineligible hzn records... ';
+	print "screening ineligible $type records... ";
 		
 	my $exclude;
 	if ($type eq 'bib') {
