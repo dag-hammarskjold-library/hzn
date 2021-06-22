@@ -97,15 +97,23 @@ sub split_993 {
 
 sub pv_from_996 {
 	my $record = shift;
-	my ($symfield,$body,$session);
+
 	my $text = $record->get_field('996')->get_sub('a');
 	my $meeting = $1 if $text =~ /(\d+).. (plenary )?meeting/i;
+	
 	return if ! $meeting;
+	
+	my ($symfield,$body,$session);
 	
 	for (qw/191 791/) {
 		if ($symfield = $record->get_field($_)) {
-			return if index($symfield->get_sub('a'),'CONF') > -1;
+		
+			if (my $sym = $symfield->get_value('a')) {
+				return if index($sym, 'CONF') > -1 || substr($sym, 0, 9) eq 'A/HRC/RES';
+			}
+			
 			$body = $symfield->get_sub('b');
+			
 			if ($session = $symfield->get_sub('c')) {
 				$session =~ s/\/$//;
 			}
