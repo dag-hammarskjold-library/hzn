@@ -29,11 +29,12 @@ CHECK_CONNECTION: {
 	$check->list_databases;
 }
 
-$|++;
+
 
 mkdir 'logs';
-open my $LOG, '>', 'logs/log_'.time.'.txt' or die "$!";
+open my $LOG, '>', 'logs/watch_'.time.'.txt' or die "$!";
 *STDERR = $LOG;
+$| = 0;
 
 my $index = Index->new;
 

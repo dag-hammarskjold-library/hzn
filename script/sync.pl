@@ -24,9 +24,6 @@ use Hzn::Export::Auth::DLX;
 
 package main;
 
-mkdir 'logs';
-open my $LOG, '>', 'logs/sync_log_'.time.'.txt' or die "$!";
-
 RUN: {
 	MAIN(options());
 }
@@ -59,7 +56,7 @@ sub options {
 
 sub MAIN {
 	my $opts = shift;
-	
+
 	CHECK_CONNECTION: {
 		my $check = MongoDB->connect($opts->{M});
 		$check->list_databases;
@@ -70,6 +67,11 @@ sub MAIN {
 	my $type;
 	$type = 'bib' if $opts->{b};
 	$type = 'auth' if $opts->{a};
+	
+	mkdir 'logs';
+	open my $LOG, '>', "logs/sync_$type\_".time.'.txt' or die "$!";
+	say {$LOG} 'starting...';
+	*STDERR = $LOG;
 	
 	my ($gte,$lte) = map {0 + ($_ // 0)} @{$opts}{qw<g l>};
 
