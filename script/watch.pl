@@ -12,9 +12,11 @@ use Moo;
 has 'index', is => 'rw', default => sub {{}};
 
 package main;
+use DateTime;
 use Time::Piece;
 use Time::Seconds;
 use Try::Tiny;
+use Tie::IxHash;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use Hzn::SQL;
@@ -24,17 +26,22 @@ use Hzn::Util::Exclude::Bib;
 use Hzn::Util::Exclude::Auth;
 use MongoDB;
 
+my $mongo = MongoDB->connect($ARGV[0]);
+
 CHECK_CONNECTION: {
-	my $check = MongoDB->connect($ARGV[0]);
-	$check->list_databases;
+	$mongo->list_databases;
 }
 
-
+my $db = $mongo->get_database('undlFiles');
+my $db_log = $db->get_collection('hzn_dlx_log');
 
 mkdir 'logs';
 open my $LOG, '>', 'logs/watch_'.time.'.txt' or die "$!";
 *STDERR = $LOG;
-$| = 1;
+$| = 0;
+
+my $started = DateTime->now;
+$db_log->insert_one(Tie::IxHash->new(action => 'watch_init', record_type => undef, started => $started, finished => undef));	
 
 my $index = Index->new;
 
@@ -44,11 +51,16 @@ init_index('bib');
 init_index('auth');
 say "done";
 
+$db_log->update_one({action => 'watch_init', started => $started}, {'$set' => {'finished' => DateTime->now}});
+
 my $wait = $ARGV[1] // 300;
 say 'next update time: '.localtime(time + $wait)->hms;
 say '-' x 50;
 
 while (1) {
+	my $started = DateTime->now;
+	$db_log->insert_one(Tie::IxHash->new(action => 'watch', record_type => undef, started => $started, finished => undef));	
+
 	sleep $wait;
 	
 	say 'scanning auths @ '.localtime;
@@ -61,6 +73,8 @@ while (1) {
 	say '-' x 33;
 	say {$LOG} localtime.' scanned bibs; wrote '.$count;
 	
+	$db_log->update_one({action => 'watch', started => $started}, {'$set' => {'finished' => DateTime->now}});
+
 	say 'next update time: '.localtime(time + $wait)->hms;
 	say '-' x 50;
 }

@@ -11,6 +11,7 @@ use List::Util qw<none first>;
 use DateTime;
 
 # dist
+use Tie::IxHash;
 use MongoDB;
 
 # local
@@ -56,23 +57,26 @@ sub options {
 
 sub MAIN {
 	my $opts = shift;
+	my $mongo = MongoDB->connect($opts->{M});
 
 	CHECK_CONNECTION: {
-		my $check = MongoDB->connect($opts->{M});
-		$check->list_databases;
+		$mongo->list_databases;
 	}
 
 	my $t = time;
-	
 	my $type;
 	$type = 'bib' if $opts->{b};
 	$type = 'auth' if $opts->{a};
+
+	my $db = $mongo->get_database('undlFiles');
+	my $db_log = $db->get_collection('hzn_dlx_log');
+	my $started = DateTime->now;
+	$db_log->insert_one(Tie::IxHash->new(action => 'sync', record_type => $type, started => $started, finished => undef));	
 	
 	mkdir 'logs';
 	open my $LOG, '>', "logs/sync_$type\_".time.'.txt' or die "$!";
-	*STDERR = $LOG;
-	$| = 1;
 	say {$LOG} 'starting...';
+	*STDERR = $LOG;
 	
 	my ($gte,$lte) = map {0 + ($_ // 0)} @{$opts}{qw<g l>};
 
@@ -125,6 +129,8 @@ sub MAIN {
 			$data_col->find_one_and_delete({_id => 0 + $id});
 		}	
 	} 
+	
+	$db_log->update_one({action => 'sync', record_type => $type, started => $started}, {'$set' => {'finished' => DateTime->now}});	
 	
 	say {$LOG} time." - $type: wrote $wrote; deleted ".scalar @to_delete;
 	
