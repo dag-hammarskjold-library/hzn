@@ -197,7 +197,7 @@ sub run {
 			say {$self->output_handle} XML_HEADER."\n<collection>";
 		}
 
-		my $iterable = 'Hzn::SQL::MARC::'.$self->marc_type.'::Alt';
+		my $iterable = 'Hzn::SQL::MARC::'.$self->marc_type;
 
 		$iterable->new->iterate (
 			encoding => 'utf8',
