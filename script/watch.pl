@@ -33,7 +33,7 @@ CHECK_CONNECTION: {
 }
 
 my $db = $mongo->get_database('undlFiles');
-my $db_log = $db->get_collection('hzn_dlx_log');
+my $DB_LOG = $db->get_collection('hzn_dlx_log');
 
 mkdir 'logs';
 open my $LOG, '>', 'logs/watch_'.time.'.txt' or die "$!";
@@ -41,7 +41,7 @@ open my $LOG, '>', 'logs/watch_'.time.'.txt' or die "$!";
 $| = 0;
 
 my $started = DateTime->now;
-$db_log->insert_one(Tie::IxHash->new(action => 'watch_init', record_type => undef, started => $started, finished => undef));	
+$DB_LOG->insert_one(Tie::IxHash->new(action => 'watch_init', record_type => undef, started => $started, finished => undef));	
 
 my $index = Index->new;
 
@@ -51,7 +51,8 @@ init_index('bib');
 init_index('auth');
 say "done";
 
-$db_log->update_one({action => 'watch_init', started => $started}, {'$set' => {'finished' => DateTime->now}});
+check_for_remote_kill('watch_init', $started);
+$DB_LOG->update_one({action => 'watch_init', started => $started}, {'$set' => {'finished' => DateTime->now}});
 
 my $wait = $ARGV[1] // 300;
 say 'next update time: '.localtime(time + $wait)->hms;
@@ -59,9 +60,11 @@ say '-' x 50;
 
 while (1) {
 	my $started = DateTime->now;
-	$db_log->insert_one(Tie::IxHash->new(action => 'watch', record_type => undef, started => $started, finished => undef));	
+	$DB_LOG->insert_one(Tie::IxHash->new(action => 'watch', record_type => undef, started => $started, finished => undef));	
 
 	sleep $wait;
+	
+	check_for_remote_kill('watch', $started);
 	
 	say 'scanning auths @ '.localtime;
 	my $count = scan_index('auth');
@@ -73,7 +76,7 @@ while (1) {
 	say '-' x 33;
 	say {$LOG} localtime.' scanned bibs; wrote '.$count;
 	
-	$db_log->update_one({action => 'watch', started => $started}, {'$set' => {'finished' => DateTime->now}});
+	$DB_LOG->update_one({action => 'watch', started => $started}, {'$set' => {'finished' => DateTime->now}});
 
 	say 'next update time: '.localtime(time + $wait)->hms;
 	say '-' x 50;
@@ -178,4 +181,13 @@ sub excludes {
 	say scalar keys %$exclude;
 	
 	return $exclude;
+}
+
+sub check_for_remote_kill {
+	my ($action, $started) = @_;
+	
+	if ($DB_LOG->count_documents({action => 'kill', time => {'$gt' => $started}})) {
+		$DB_LOG->update_one({action => $action, started => $started}, {'$set' => {'killed' => DateTime->now}});
+		die "script killed remotely";
+	}
 }
