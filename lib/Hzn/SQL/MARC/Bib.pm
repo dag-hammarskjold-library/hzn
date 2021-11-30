@@ -18,7 +18,7 @@ has 'statement' => (
 				a.indicators as auth_inds,
 				str_replace (
 					str_replace ( 
-						b.text + convert(varchar(8000),bl.longtext), 
+						b.text + convert(varchar(16384),bl.longtext), 
 						char(10), 
 						"" 
 					),
@@ -27,7 +27,7 @@ has 'statement' => (
 				) as text,
 				str_replace (	
 					str_replace ( 
-						a.text + convert(varchar(8000),al.longtext),
+						a.text + convert(varchar(16384),al.longtext),
 						char(10),
 						""
 					),
