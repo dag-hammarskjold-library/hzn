@@ -12,6 +12,7 @@ use Moo;
 has 'index', is => 'rw', default => sub {{}};
 
 package main;
+use Getopt::Std;
 use DateTime;
 use Time::Piece;
 use Time::Seconds;
@@ -26,7 +27,26 @@ use Hzn::Util::Exclude::Bib;
 use Hzn::Util::Exclude::Auth;
 use MongoDB;
 
-my $mongo = MongoDB->connect($ARGV[0]);
+sub options {
+	my @opts = (
+		['s' => 'run sync in separate window before starting'],
+		['i:' => 'interval between updates (seoconds)'],
+		['M:' => 'MDB connection string']
+	);
+	
+	my @copy = @ARGV;
+	getopts (join('', map {$_->[0]} @opts), \my %opts);
+	if (! %opts || $opts{h}) {
+		say join ' - ', @$_ for @opts;
+		exit;
+	}
+	
+	$opts{ARGV} = \@copy;
+	return \%opts;
+}
+
+my $opts = options();
+my $mongo = MongoDB->connect($opts->{M});
 
 CHECK_CONNECTION: {
 	$mongo->list_databases;
@@ -54,7 +74,14 @@ say "done";
 check_for_remote_kill('watch_init', $started);
 $DB_LOG->update_one({action => 'watch_init', started => $started}, {'$set' => {'finished' => DateTime->now}});
 
-my $wait = $ARGV[1] // 300;
+SYNC: if ($opts->{s}) {
+	# start sync script in separate window and wait for it to finish
+	say "waiting for sync...";
+	system qq|perl sync.pl -aM $opts->{M}|;
+	system qq|perl sync.pl -bM $opts->{M}|;
+}
+
+my $wait = $opts->{i} || 300;
 say 'next update time: '.localtime(time + $wait)->hms;
 say '-' x 50;
 
@@ -118,7 +145,7 @@ sub scan_index {
 	my $class = 'Hzn::Export::'.($type eq 'auth' ? 'Auth' : 'Bib').'::DLX';
 	my $export = $class->new(
 		output_type => 'mongo',
-		mongodb_connection_string => $ARGV[0]
+		mongodb_connection_string => $opts->{M}
 	);
 	
 	my ($tries, $count) = 0 x 2;
