@@ -24,6 +24,7 @@ use Hzn::Export::Bib::DLX;
 use Hzn::Export::Auth::DLX;
 
 package main;
+$| = 0;
 
 my $OPTS = options();
 my $type = $OPTS->{b} ? 'bib' : $OPTS->{a} ? 'auth' : die '-a or -b required';

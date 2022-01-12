@@ -13,14 +13,19 @@ CHECK_CONNECTION: {
 
 my $db = $mongo->get_database('undlFiles');
 my $db_log = $db->get_collection('hzn_dlx_log');
+my $q;
 
-print 'This will kill any running instances of `watch.pl`. Are you sure? (Y/N): ';
-my $q = <STDIN>;
-chomp($q);
+if (scalar @ARGV > 1 && $ARGV[1] eq 'y') {
+	$q = 'y'
+} else {
+	print 'This will kill any running instances of `watch.pl`. Are you sure? (Y/N): ';
+	$q = <STDIN>;
+	chomp($q);
+}
 
 if (lc($q) eq 'y' or lc($q) eq 'yes') { 
 	$db_log->insert_one({action => 'kill', time => DateTime->now});
-	say "OK. Any running instances of `watch.pl` will die before the next cycle";
+	say "OK. Any running instances of `watch.pl` will quit before the next cycle";
 } else {
 	say "quitting"
 }
