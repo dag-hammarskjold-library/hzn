@@ -25,8 +25,31 @@ use Hzn::Export::Auth::DLX;
 
 package main;
 
+my $OPTS = options();
+my $type = $OPTS->{b} ? 'bib' : $OPTS->{a} ? 'auth' : die '-a or -b required';
+mkdir 'logs';
+open my $LOG, '>', "logs/sync_$type\_".time.'.txt' or die "$!";
+*STDERR = $LOG;
+say {$LOG} 'starting...';
+my $tries = 0;
+	
 RUN: {
-	MAIN(options());
+	eval {
+		MAIN($OPTS);
+	} or do {
+		say $@;
+		if (++$tries == 10) {
+			say 'FATAL: retried max times';
+			die $@."\nretried max times";
+		}
+		
+		if (my $wait = $tries * 10) {
+			say qq|retrying in $wait seconds...|;
+			sleep $wait;
+		}
+		
+		goto RUN
+	}
 }
 
 sub options {
@@ -64,20 +87,12 @@ sub MAIN {
 	}
 
 	my $t = time;
-	my $type;
-	$type = 'bib' if $opts->{b};
-	$type = 'auth' if $opts->{a};
+	my $type = $opts->{b} ? 'bib' : $opts->{a} ? 'auth' : die '-a or -b required';
 
 	my $db = $mongo->get_database('undlFiles');
 	my $db_log = $db->get_collection('hzn_dlx_log');
 	my $started = DateTime->now;
-	$db_log->insert_one(Tie::IxHash->new(action => 'sync', record_type => $type, started => $started, finished => undef));	
-	
-	mkdir 'logs';
-	open my $LOG, '>', "logs/sync_$type\_".time.'.txt' or die "$!";
-	say {$LOG} 'starting...';
-	*STDERR = $LOG;
-	
+	$db_log->insert_one(Tie::IxHash->new(action => 'sync', record_type => $type, started => $started, finished => undef));		
 	my ($gte,$lte) = map {0 + ($_ // 0)} @{$opts}{qw<g l>};
 
 	my $hzn = scan_horizon($type,$gte,$lte);
@@ -258,4 +273,3 @@ sub _update_status {
 	print $status;
 	$chars_to_delete = length $status;
 }
-
