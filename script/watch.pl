@@ -75,10 +75,10 @@ check_for_remote_kill('watch_init', $started);
 $DB_LOG->update_one({action => 'watch_init', started => $started}, {'$set' => {'finished' => DateTime->now}});
 
 SYNC: if ($opts->{s}) {
-	# start sync script in separate window and wait for it to finish
 	say "waiting for sync...";
-	system qq|perl sync.pl -aM $opts->{M}|;
-	system qq|perl sync.pl -bM $opts->{M}|;
+
+	system qq|perl sync.pl -aM $opts->{M} -c 100000|;
+	system qq|perl sync.pl -bM $opts->{M} -c 100000|;
 }
 
 my $wait = $opts->{i} || 300;
@@ -98,13 +98,17 @@ while (1) {
 	say '-' x 33;
 	say {$LOG} localtime.' scanned auths; wrote '.$count;
 	
+	check_for_remote_kill('watch', $started);
+	
 	say 'scanning bibs @ '.localtime;
-	scan_index('bib');
+	$count = scan_index('bib');
 	say '-' x 33;
 	say {$LOG} localtime.' scanned bibs; wrote '.$count;
 	
 	$DB_LOG->update_one({action => 'watch', started => $started}, {'$set' => {'finished' => DateTime->now}});
-
+	
+	check_for_remote_kill('watch', $started);
+	
 	say 'next update time: '.localtime(time + $wait)->hms;
 	say '-' x 50;
 }
