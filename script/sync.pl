@@ -32,25 +32,61 @@ mkdir 'logs';
 open my $LOG, '>', "logs/sync_$type\_".time.'.txt' or die "$!";
 *STDERR = $LOG;
 say {$LOG} 'starting...';
+
+my $mongo = MongoDB->connect($OPTS->{M});
+my $db = $mongo->get_database('undlFiles');
+my $db_log = $db->get_collection('hzn_dlx_log');
+my $started = DateTime->now;
+$db_log->insert_one(Tie::IxHash->new(action => 'sync', record_type => $type, started => $started, finished => undef));	
+
 my $tries = 0;
-	
-RUN: {
-	eval {
-		MAIN($OPTS);
-	} or do {
-		say $@;
-		if (++$tries == 10) {
-			say 'FATAL: retried max times';
-			die $@."\nretried max times";
-		}
-		
-		if (my $wait = $tries * 10) {
-			say qq|retrying in $wait seconds...|;
-			sleep $wait;
-		}
-		
-		goto RUN
+
+sub fail {
+	say $@;
+	if (++$tries == 10) {
+		say 'FATAL: retried max times';
+		die $@."\nretried max times";
 	}
+		
+	if (my $wait = $tries * 10) {
+		say qq|retrying in $wait seconds...|;
+		sleep $wait;
+	}
+}
+
+RUN: {	
+	if (my $chunk = $OPTS->{c}) {
+		$OPTS->{g} || $OPTS->{l} && die 'can\'t use -c with -g or -l';
+		
+		my $max = Hzn::SQL->new(statement => "select max($type\#) from $type\_control", save_results => 1)->run->results->[0]->[0];
+
+		for (my $x = 0; $x < $max; $x += $chunk) {
+			say "syncing $type $x - ".($x + $chunk);
+			
+			$OPTS->{g} = $x;
+			$OPTS->{l} = $x + $chunk;
+			
+			$tries = 0;
+			
+			CHUNK: eval {
+				MAIN($OPTS);
+			} or do {
+				fail();
+				
+				goto CHUNK;
+			}
+		}
+	} else {
+		eval {
+			MAIN($OPTS);
+		} or do {
+			fail();
+	
+			goto RUN
+		}
+	}
+	
+	$db_log->update_one({action => 'sync', record_type => $type, started => $started}, {'$set' => {'finished' => DateTime->now}});	
 }
 
 sub options {
@@ -58,6 +94,7 @@ sub options {
 		['h' => 'help'],
 		['b' => 'bibs'],
 		['a' => 'auths'],
+		['c:' => 'chunk'],
 		['g:' => 'id greater than'],
 		['l:' => 'id less than'],
 		['M:' => 'mongo connection string'],
@@ -81,7 +118,6 @@ sub options {
 
 sub MAIN {
 	my $opts = shift;
-	my $mongo = MongoDB->connect($opts->{M});
 
 	CHECK_CONNECTION: {
 		$mongo->list_databases;
@@ -90,10 +126,7 @@ sub MAIN {
 	my $t = time;
 	my $type = $opts->{b} ? 'bib' : $opts->{a} ? 'auth' : die '-a or -b required';
 
-	my $db = $mongo->get_database('undlFiles');
-	my $db_log = $db->get_collection('hzn_dlx_log');
-	my $started = DateTime->now;
-	$db_log->insert_one(Tie::IxHash->new(action => 'sync', record_type => $type, started => $started, finished => undef));		
+		
 	my ($gte,$lte) = map {0 + ($_ // 0)} @{$opts}{qw<g l>};
 
 	my $hzn = scan_horizon($type,$gte,$lte);
@@ -145,9 +178,7 @@ sub MAIN {
 			$data_col->find_one_and_delete({_id => 0 + $id});
 		}	
 	} 
-	
-	$db_log->update_one({action => 'sync', record_type => $type, started => $started}, {'$set' => {'finished' => DateTime->now}});	
-	
+
 	say {$LOG} time." - $type: wrote $wrote; deleted ".scalar @to_delete;
 	
 	say "time elapsed: ".((time - $t) / 60)." minutes";
