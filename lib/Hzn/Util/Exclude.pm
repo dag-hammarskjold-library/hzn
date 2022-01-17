@@ -9,11 +9,11 @@ sub ids {
 	
 	my $type = $self->type;
 	
-	if ($gte) {
-		$self->{sql} .= "and $type\# >= $gte";
+	if (defined $gte) {
+		$self->{sql} .= " and $type\# >= $gte";
 	}
-	if ($lte) {
-		$self->{sql} .= "and $type\# <= $lte";
+	if (defined $lte) {
+		$self->{sql} .= " and $type\# <= $lte";
 	}
 	
 	my $get = Hzn::SQL->new(statement => $self->{sql}, save_results => 1)->run;
