@@ -115,7 +115,6 @@ sub run {
 	my ($self,%p) = @_;
 	my $callback = $p{callback};
 	
-
 	my $pid = open my $raw, '-|', $self->cmd or die "wtf?";
 	local $SIG{INT} = sub {kill 1, $pid; die "SIGINT"}; #  
 	
@@ -126,12 +125,20 @@ sub run {
 	my @results;
 	
 	RAW: while (my $line = <$raw>) {
-
+		#say $line;
+		
 		CATCH: {
-			if ($. == 1 && $line =~ /^Msg \d+/) {
-				say "\nSybase error!\n", $line, <$raw>;
-				die $self->statement."\n";
-			}
+			if ($. == 1) {
+				if ($line =~ /^Msg \d+/) {
+					say "\nSybase error!\n", $line, <$raw>;
+					die $self->statement."\n";
+				} 
+				
+				if ($line =~ /^CT-LIBRARY error:/) {
+					say "\nNetwork error\n", $line, <$raw>;
+					die "Horizon connection failure";
+				}  
+			}		
 		}
 		
 		JUNK: {
