@@ -118,6 +118,7 @@ sub init_index {
 	my $exclude = excludes($type);
 	my $get = Hzn::SQL->new(statement =>  "select $type\#, timestamp from $type\_control", save_results => 1);
 	$get->run;
+	scalar @{$get->results} == 0 && die "something is wrong";
 	$index->index->{$type}->{$_->[0]} = $_->[1] for grep {! $exclude->{$_->[0]}} @{$get->results};
 }
 
@@ -126,6 +127,7 @@ sub scan_index {
 	my $exclude = excludes($type);
 	my $get = Hzn::SQL->new(statement =>  "select $type\#, timestamp from $type\_control", save_results => 1);
 	$get->run;
+	scalar @{$get->results} == 0 && die "something is wrong";
 	
 	my (@to_update,%seen);
 	
@@ -209,7 +211,11 @@ sub excludes {
 		$exclude = Hzn::Util::Exclude::Auth->new->ids($gte,$lte);
 	}
 	
-	say scalar keys %$exclude;
+	if (my $c = scalar keys %$exclude) {
+		say $c
+	} else {
+		die "something is wrong";
+	}
 	
 	return $exclude;
 }
