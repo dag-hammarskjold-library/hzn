@@ -58,8 +58,19 @@ RUN: {
 	if (my $chunk = $OPTS->{c}) {
 		$OPTS->{g} || $OPTS->{l} && die 'can\'t use -c with -g or -l';
 		
-		my $max = Hzn::SQL->new(statement => "select max($type\#) from $type\_control", save_results => 1)->run->results->[0]->[0];
-
+		my $max;
+		
+		MAX: {
+			$max = Hzn::SQL->new(statement => "select max($type\#) from $type\_control", save_results => 1)->run->results->[0]->[0];
+		
+			unless ($max) {
+				say "max ID not found";
+				sleep(5);
+				++$tries == 10 && die "max ID not found";
+				goto MAX;
+			}
+		}
+		
 		for (my $x = 0; $x < $max; $x += $chunk) {
 			say "syncing $type $x - ".($x + $chunk);
 			
@@ -139,6 +150,7 @@ sub MAIN {
 		my ($h,$d) = map {$_ // ''} ($hzn->{$id},$dlx->{$id});
 		if ($h ne $d) {
 			# add the record to update queue;
+			
 			push @to_update, $id;
 		}
 	}
@@ -217,6 +229,8 @@ sub scan_horizon {
 		}
 	);
 	
+	scalar keys %hzn == 0 && die "something is wrong";
+	
 	print "\n";
 	
 	return \%hzn;
@@ -234,7 +248,11 @@ sub excludes {
 		$exclude = Hzn::Util::Exclude::Auth->new->ids($gte,$lte);
 	}
 	
-	say scalar keys %$exclude;
+	if (my $c = scalar keys %$exclude) {
+		say $c
+	} else {
+		die "something is wrong";
+	}
 	
 	return $exclude;
 }
