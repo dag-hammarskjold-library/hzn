@@ -14,7 +14,7 @@ has 'excluder', is => 'ro', default => sub {Hzn::Export::Util::Exclude::Auth::DL
 sub _exclude {
 	my ($self, $record) = @_;
 
-	return 1 if $record->get_field('150') and $record->get_field('150')->ind1 ne '9';
+	return 1 if $record->get_field('150') and substr($record->get_field('035')->get_subfield('a'), 0, 1) eq 'T';
 	return 1 if $record->record_status eq 'd';
 	return 1 if $self->excluder->exclude($record->id);
 }
